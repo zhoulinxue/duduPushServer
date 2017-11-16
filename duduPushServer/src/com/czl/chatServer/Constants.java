@@ -30,7 +30,6 @@ public class Constants {
 	public static final String USER_ISONLINE = "gd.";
 	public static final String GROUP_IP = "group_ip";
 	public static final String USER_TOKEN="app.token.";
-	public static final Object NAME_SEPERATE = "銆�";
     // 分隔符
     public static String SEPORATE="|";
     //消息结束符
