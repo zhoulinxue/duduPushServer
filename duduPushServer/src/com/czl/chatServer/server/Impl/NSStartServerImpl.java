@@ -2,7 +2,8 @@ package com.czl.chatServer.server.Impl;
 
 import com.czl.chatServer.Constants;
 import com.czl.chatServer.NSConfig;
-import com.czl.chatServer.netty.AppServer;
+import com.czl.chatServer.ServerType;
+import com.czl.chatServer.netty.NettyServer;
 import com.czl.chatServer.netty.NSClient;
 import com.czl.chatServer.server.NSStartServer;
 /**
@@ -18,21 +19,22 @@ import com.czl.chatServer.server.NSStartServer;
 public class NSStartServerImpl implements NSStartServer {
 
     @Override
-    public final NSConfig initConfig() {
-	// TODO Auto-generated method stub
+    public  NSConfig initConfig() {
+	// TODO 初始化默认服务器配置
 	return NSConfig.creatDefault();
     }
 
     @Override
     public void registeNS(NSConfig config) {
 	// TODO Auto-generated method stub
-
+        
     }
 
     @Override
     public void startNodeServer(NSConfig config) {
 	// TODO Auto-generated method stub
-
+           NettyServer  server=new NettyServer(config, null, ServerType.NodeServer);
+           server.start();
     }
 
     @Override
@@ -46,17 +48,17 @@ public class NSStartServerImpl implements NSStartServer {
 	buffer.append(config.getListeningport());
 	NSClient client = new NSClient(config.getServerip(), Integer.parseInt(config.getNodeport()), buffer.toString());
 	client.start();
-	AppServer server = new AppServer(config, client);
+	NettyServer server = new NettyServer(config, client,ServerType.AppServer);
 	server.start();
     }
 
     @Override
     public final void start() {
-	// TODO Auto-generated method stub
+	// 初始化 服务器启动参数
 	NSConfig config = initConfig();
-
+	//开启跨服务器 监听
 	startNodeServer(config);
-
+	//开启APP监听
 	startAppServer(config);
 
     }

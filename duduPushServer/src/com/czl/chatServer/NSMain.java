@@ -2,6 +2,7 @@ package com.czl.chatServer;
 
 import com.czl.chatServer.server.NSStartServer;
 import com.czl.chatServer.server.Impl.NSStartServerImpl;
+
 /**
  * 
  * 项目名称：duduPushServer
@@ -12,9 +13,11 @@ import com.czl.chatServer.server.Impl.NSStartServerImpl;
  * Copyright: Copyright (c) zhouxue Co.,Ltd. 2017
  * Company:"zhouxue" org
  */
-public class NSMain {
-	public static void main(String[] args) {
-		NSStartServer server=new NSStartServerImpl();
-		server.start();		
-	}
+public class NSMain
+{
+    public static void main(String[] args)
+    {
+        NSStartServer server = new NSStartServerImpl();
+        server.start();
+    }
 }

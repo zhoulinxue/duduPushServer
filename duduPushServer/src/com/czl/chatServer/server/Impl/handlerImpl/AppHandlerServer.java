@@ -25,7 +25,7 @@ public class AppHandlerServer implements HandlerServer{
     @Override
     public void channelRead(ChannelHandlerContext ctx, NettyMessage msg) throws Exception {
 	// TODO Auto-generated method stub
-	
+        
     }
 
     @Override
