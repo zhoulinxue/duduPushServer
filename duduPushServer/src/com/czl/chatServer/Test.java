@@ -59,9 +59,21 @@ public class Test {
 
         System.out.println("\n5. 删除节点 ");
         zk.delete("/zoo2", -1);
+        System.out.println(zk.getChildren("/zoo2", new Watcher()
+        {
+            
+            @Override
+            public void process(WatchedEvent arg0)
+            {
+                // TODO Auto-generated method stub
+                System.out.println(" 节点状态： [变化]");
+            }
+        }).size());
 
         System.out.println("\n6. 查看节点是否被删除： ");
         System.out.println(" 节点状态： [" + zk.exists("/zoo2", false) + "]");
+        
+        
     }
 
     private void ZKClose() throws InterruptedException {

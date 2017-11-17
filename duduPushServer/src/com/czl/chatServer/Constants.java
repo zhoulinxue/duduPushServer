@@ -30,6 +30,10 @@ public class Constants {
 	public static final String USER_ISONLINE = "gd.";
 	public static final String GROUP_IP = "group_ip";
 	public static final String USER_TOKEN="app.token.";
+   
+    public static final String ZK_DATA_PATH ="/tmp_root_path";
+    public static final String ZK_REGISTRY_PATH = ZK_DATA_PATH+"/data";
+    public static final int ZK_SESSION_TIMEOUT = 2000;
     // 分隔符
     public static String SEPORATE="|";
     //消息结束符
@@ -45,4 +49,6 @@ public class Constants {
 	public static String CHATTING_CHANNEL="chatting_channel";
 	public static String THIS_NS_ONLIN="on_line_in";
 	public static String OFF_USER="off_user"; 
+	    // 
+	public static String zkAddress="192.168.13.31:2181";
 }
