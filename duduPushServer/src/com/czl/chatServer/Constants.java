@@ -50,5 +50,5 @@ public class Constants {
 	public static String THIS_NS_ONLIN="on_line_in";
 	public static String OFF_USER="off_user"; 
 	    // 
-	public static String zkAddress="192.168.13.31:2181";
+	public static String ZKADDRESS="192.168.13.31:2181";
 }
