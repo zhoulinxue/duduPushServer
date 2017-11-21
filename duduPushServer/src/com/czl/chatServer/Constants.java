@@ -34,6 +34,9 @@ public class Constants {
     public static final String ZK_DATA_PATH ="/tmp_root_path";
     public static final String ZK_REGISTRY_PATH = ZK_DATA_PATH+"/data";
     public static final int ZK_SESSION_TIMEOUT = 2000;
+    public static final String USER = "user.";
+    public static final String NODE_PORT = "nd.";
+    public static final String NS_IP =  "ns.";
     // 分隔符
     public static String SEPORATE="|";
     //消息结束符

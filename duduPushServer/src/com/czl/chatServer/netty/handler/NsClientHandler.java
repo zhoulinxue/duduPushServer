@@ -12,6 +12,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
+
 /**
  * 
  * 项目名称：
@@ -22,103 +23,147 @@ import io.netty.util.ReferenceCountUtil;
  * Copyright: Copyright (c) zhouxue Co.,Ltd. 2017
  * Company:"zhouxue" org
  */
-public class NsClientHandler extends ChannelInboundHandlerAdapter {
+public class NsClientHandler extends ChannelInboundHandlerAdapter
+{
     NSClient nc = null;
-
-    public NsClientHandler(NSClient nettyClient) {
-	nc = nettyClient;
+    
+    private NettyMessage msg;
+    
+    public NsClientHandler(NSClient nettyClient)
+    {
+        nc = nettyClient;
     }
-
+    
+    public NsClientHandler(NettyMessage msg)
+    {
+        super();
+        this.msg = msg;
+    }
+    
     /**
      * Calls {@link ChannelHandlerContext#fireChannelActive()} to forward to the
      * next {@link ChannelHandler} in the {@link ChannelPipeline}.
      * 
      * Sub-classes may override this method to change behavior.
      */
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-	super.channelActive(ctx);
-//	ctx.writeAndFlush(buildLoginReq());// LC|ip:port
-	nc.channel = ctx.pipeline().channel();
-	// Demo.ctx=ctx;
+    public void channelActive(ChannelHandlerContext ctx) throws Exception
+    {
+        super.channelActive(ctx);
+        //	ctx.writeAndFlush(buildLoginReq());// LC|ip:port
+        nc.channel = ctx.pipeline().channel();
+        // Demo.ctx=ctx;
+        if (msg != null)
+        {
+            ctx.writeAndFlush(msg);
+        }
     }
+    
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception
+    {
         // TODO Auto-generated method stub
         super.channelInactive(ctx);
     }
-
+    
     /**
      * Calls {@link ChannelHandlerContext#fireChannelRead(Object)} to forward to
      * the next {@link ChannelHandler} in the {@link ChannelPipeline}.
      * 
      * Sub-classes may override this method to change behavior.
      */
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-	try {
-	    NettyMessage message = (NettyMessage) msg;
-	    byte head0 = message.getHeader0();
-	    byte head1 = message.getHeader1();
-	    if (head0 == 48 && head1 == 48) {
-		// System.out.println("NS向MS注册成功2");
-	    } else {
-
-	    }
-	} catch (Exception e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	} finally {
-	    ctx.fireChannelRead(msg);
-	    ReferenceCountUtil.release(msg);
-	}
-	/////////////////////////////////////////////////////
-
+    public void channelRead(ChannelHandlerContext ctx, Object msg)
+            throws Exception
+    {
+        try
+        {
+            NettyMessage message = (NettyMessage) msg;
+            byte head0 = message.getHeader0();
+            byte head1 = message.getHeader1();
+            if (head0 == 48 && head1 == 48)
+            {
+                // System.out.println("NS向MS注册成功2");
+            }
+            else
+            {
+                
+            }
+        }
+        catch (Exception e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        finally
+        {
+            ctx.fireChannelRead(msg);
+            ReferenceCountUtil.release(msg);
+        }
+        /////////////////////////////////////////////////////
+        
     }
-
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-	// System.out.println("WWWWWWWWWWWWWWWWW:"+ctx.pipeline().channel().localAddress().toString())
-	// ;
-	cause.printStackTrace();
-	ctx.fireExceptionCaught(cause);
-	ctx.close();
+    
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
+            throws Exception
+    {
+        // System.out.println("WWWWWWWWWWWWWWWWW:"+ctx.pipeline().channel().localAddress().toString())
+        // ;
+        cause.printStackTrace();
+        ctx.fireExceptionCaught(cause);
+        ctx.close();
     }
     ///////////////////////////////////////////////
-
+    
     @Override
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-	try {
-	    if (IdleStateEvent.class.isAssignableFrom(evt.getClass())) {
-		IdleStateEvent event = (IdleStateEvent) evt;
-		if (event.state() == IdleState.READER_IDLE) {
-		    System.out.println("ns客户端read idle");
-		    ctx.close();
-		} else if (event.state() == IdleState.WRITER_IDLE) {
-		    // System.out.println("ns客户端write idle,给MS发送心跳");
-		    NettyMessage heatBeat = buildHeatBeat();
-		    ctx.writeAndFlush(heatBeat);
-		}
-		// else if (event.state() == IdleState.ALL_IDLE)
-		// System.out.println("ns客户端all idle");
-	    }
-	} catch (Exception e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	} finally {
-	    ctx.fireUserEventTriggered(evt);
-	    ReferenceCountUtil.release(evt);
-	}
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt)
+            throws Exception
+    {
+        try
+        {
+            if (IdleStateEvent.class.isAssignableFrom(evt.getClass()))
+            {
+                IdleStateEvent event = (IdleStateEvent) evt;
+                if (event.state() == IdleState.READER_IDLE)
+                {
+                    System.out.println("ns客户端read idle");
+                    ctx.close();
+                }
+                else if (event.state() == IdleState.WRITER_IDLE)
+                {
+                    // System.out.println("ns客户端write idle,给MS发送心跳");
+                    NettyMessage heatBeat = buildHeatBeat();
+                    ctx.writeAndFlush(heatBeat);
+                }
+                // else if (event.state() == IdleState.ALL_IDLE)
+                // System.out.println("ns客户端all idle");
+            }
+        }
+        catch (Exception e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        finally
+        {
+            ctx.fireUserEventTriggered(evt);
+            ReferenceCountUtil.release(evt);
+        }
     }
-
-    private NettyMessage buildHeatBeat() {
-	NettyMessage message = new NettyMessage();
-
-	message.setHeader0((byte) 67);
-	message.setHeader1((byte) 75);
-	try {
-	    message.setContent((Constants.MESSAFE_END_TAG).getBytes("UTF-8"));
-	} catch (UnsupportedEncodingException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	}
-	return message;
+    
+    private NettyMessage buildHeatBeat()
+    {
+        NettyMessage message = new NettyMessage();
+        
+        message.setHeader0((byte) 67);
+        message.setHeader1((byte) 75);
+        try
+        {
+            message.setContent((Constants.MESSAFE_END_TAG).getBytes("UTF-8"));
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return message;
     }
 }

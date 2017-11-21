@@ -7,6 +7,9 @@ public class DuduUser {
 	private String url;
 	private String diviceid;
 	private String extra;
+	private String ip;
+	private int port;
+	private String loginTime;
 
 	public String getToken() {
 		return token;
@@ -57,17 +60,52 @@ public class DuduUser {
 		this.diviceid = diviceid;
 	}
 
-	@Override
-	public String toString() {
-		return "DuduUser [userid=" + userid + ", username=" + username + ", token=" + token + ", url=" + url
-				+ ", diviceid=" + diviceid + "]";
-	}
+	
 
-	public String getExtra() {
+	@Override
+    public String toString()
+    {
+        return "DuduUser [userid=" + userid + ", username=" + username
+                + ", token=" + token + ", url=" + url + ", diviceid=" + diviceid
+                + ", extra=" + extra + ", ip=" + ip + ", port=" + port + "]";
+    }
+
+    public String getExtra() {
 		return extra;
 	}
 
 	public void setExtra(String extra) {
 		this.extra = extra;
 	}
+
+    public String getIp()
+    {
+        return ip;
+    }
+
+    public void setIp(String ip)
+    {
+        this.ip = ip;
+    }
+
+    public int getPort()
+    {
+        return port;
+    }
+
+    public void setPort(int port)
+    {
+        this.port = port;
+    }
+
+    public String getLoginTime()
+    {
+        return loginTime;
+    }
+
+    public void setLoginTime(String loginTime)
+    {
+        this.loginTime = loginTime;
+    }
+	
 }

@@ -6,6 +6,7 @@ import java.util.Date;
 import com.czl.chatClient.Constants;
 import com.czl.chatClient.DuduSDK;
 import com.czl.chatClient.bean.NettyMessage;
+import com.czl.chatClient.handler.MSChannelInitializer;
 
 public class Log {
 	public static void error(String error) {
@@ -39,6 +40,12 @@ public class Log {
 		if(DuduSDK.isDebug())
 		System.out.println("Dudu_SDK___"+msg);
 	}
+
+    public static void e(String string)
+    {
+        // TODO Auto-generated method stub
+        e("",string);
+    }
 	
 	
 }

@@ -1,8 +1,6 @@
 package com.czl.chatServer.server.Impl;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatServer.ChatType;
@@ -12,13 +10,20 @@ import io.netty.channel.ChannelHandlerContext;
 
 public class ChattingModelManager implements IChatModelServer
 {
+    public static ChattingModelManager instance;
+    
+    public static ChattingModelManager getInstance()
+    {
+        if (instance == null)
+        {
+            instance = new ChattingModelManager();
+        }
+        return instance;
+    }
+    
     private IChatModelServer friendServer = new FriendChatModel();
     
     private IChatModelServer groupModelServer = new GroupChatModel();
-    
-    private Map<String, IChatModelServer> groupChatModels = new ConcurrentHashMap<>();
-    
-    private Map<String, IChatModelServer> friendChatModels = new ConcurrentHashMap<>();
     
     @Override
     public void chatByte(ChannelHandlerContext ctx, NettyMessage msg)
@@ -48,13 +53,14 @@ public class ChattingModelManager implements IChatModelServer
         {
             case GROUP:
                 String groupId = "";
-                server = groupModelServer.creatChat(ctx, msg, type);
-                groupChatModels.put(groupId, server);
+                server = groupModelServer.getModels(ChatType.GROUP)
+                        .get(groupId);
                 break;
             case FRIEND:
                 String uid = "";
-                server = friendServer.creatChat(ctx, msg, type);
-                friendChatModels.put(uid, server);
+                String fuid = "";
+                server = friendServer.getModels(ChatType.FRIEND).get(uid);
+                
                 break;
             default:
                 break;
@@ -97,5 +103,20 @@ public class ChattingModelManager implements IChatModelServer
         // TODO Auto-generated method stub
         
     }
+    
+    @Override
+    public Map<String, IChatModelServer> getModels(ChatType type)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void chatbyteEnd(ChannelHandlerContext ctx, NettyMessage msg)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+    
     
 }

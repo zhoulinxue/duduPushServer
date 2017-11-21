@@ -6,7 +6,9 @@ import com.czl.chatServer.server.IFriendChatLifeCycle;
 import com.czl.chatServer.server.IHandlerServer;
 import com.czl.chatServer.server.INettyServer;
 import com.czl.chatServer.server.IPushMessageServer;
+import com.czl.chatServer.server.Impl.ChattingModelManager;
 import com.czl.chatServer.server.Impl.FriendChatServerImpl;
+import com.czl.chatServer.server.Impl.NaviServerImpl;
 import com.czl.chatServer.server.Impl.NettyServerImpl;
 import com.czl.chatServer.server.Impl.PushMessageImpl;
 
@@ -27,12 +29,16 @@ import io.netty.util.ReferenceCountUtil;
  */
 public class AppHandlerServer implements IHandlerServer
 {
+    //连接业务
     private IConnectLifeCycle connectServer = new AppConnectServerImpl();
     
+    //一对一 对讲业务
     private IFriendChatLifeCycle friendChatServer = new FriendChatServerImpl();
     
+    // 常规 业务
     private INettyServer nettyServer = new NettyServerImpl();
     
+    //推送业务
     private IPushMessageServer pushMsg = new PushMessageImpl();
     
     @Override
@@ -58,8 +64,14 @@ public class AppHandlerServer implements IHandlerServer
             case FS:
                 friendChatServer.invitesFriend(ctx, msg);
                 break;
+            case FA:
+                friendChatServer.agreeCall(ctx, msg);
+                break;
             case FR:
                 friendChatServer.reJectCall(ctx, msg);
+                break;
+            case FE:
+                friendChatServer.cancelCall(ctx, msg);
                 break;
             case ED:
                 friendChatServer.endFriendChat(ctx, msg);
@@ -69,64 +81,55 @@ public class AppHandlerServer implements IHandlerServer
                 break;
             case P2P_CHAT_BYTE:
             case SG:
-                nettyServer.chatbyte(ctx, msg);
+                ChattingModelManager.getInstance().chatByte(ctx, msg);
                 break;
             case IM:
                 pushMsg.pushImMessage(ctx.channel(), msg);
                 break;
             case IS:
-                pushMsg.pushCompelte(ctx,msg);
+                pushMsg.pushMsgCompelte(ctx, msg);
                 break;
-            
             case GS:
-                
+                ChattingModelManager.getInstance().chatByte(ctx, msg);
                 break;
             case EG:
-                
+                ChattingModelManager.getInstance().userQuit(ctx, msg);
                 break;
             case GT:
-                
-                break;
             case ET:
-                
+                ChattingModelManager.getInstance().chatbyteEnd(ctx, msg);
                 break;
             case TA:
-                
+                NaviServerImpl.getInstance().getTrafficPic(ctx.channel(), msg);
                 break;
             case PP:
-                
+                NaviServerImpl.getInstance().getUserPersion(ctx.channel(), msg);
                 break;
             case XY:
-                
-                break;
             case XZ:
-                
-                break;
-            case FE:
-                
+                ChattingModelManager.getInstance().locationChange(ctx, msg);
                 break;
             case LT:
                 
                 break;
-            case FA:
-                break;
+            
             case RS:
-                
+                pushMsg.pushRSMessage(ctx.channel(), msg);
                 break;
             case IC:
-                
+                nettyServer.isChannelActive(ctx, msg);
                 break;
             case PR:
-                
+                pushMsg.pushMsgsCompelte(ctx, msg);
                 break;
             case AU:
-                
+                ChattingModelManager.getInstance().chatByte(ctx, msg);
                 break;
             case FM:
-                
+                nettyServer.pushFMMsg(ctx, msg);
                 break;
             case GC:
-                
+                nettyServer.groupChages(ctx, msg);
                 break;
             default:
                 break;

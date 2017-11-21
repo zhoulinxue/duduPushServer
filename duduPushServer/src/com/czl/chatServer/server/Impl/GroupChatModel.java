@@ -9,9 +9,9 @@ import com.czl.chatServer.server.IChatModelServer;
 
 import io.netty.channel.ChannelHandlerContext;
 
-public class FriendChatModel implements IChatModelServer
+public class GroupChatModel implements IChatModelServer
 {
-    private Map<String, IChatModelServer> friendChatModels = new ConcurrentHashMap<>();
+    private Map<String, IChatModelServer> groupChatModels = new ConcurrentHashMap<>();
     @Override
     public void chatByte(ChannelHandlerContext ctx, NettyMessage msg)
     {
@@ -66,7 +66,7 @@ public class FriendChatModel implements IChatModelServer
     public Map<String, IChatModelServer> getModels(ChatType type)
     {
         // TODO Auto-generated method stub
-        return friendChatModels;
+        return groupChatModels;
     }
 
     @Override

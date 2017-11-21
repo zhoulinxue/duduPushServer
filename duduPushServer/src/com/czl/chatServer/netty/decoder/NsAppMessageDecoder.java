@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 
 import com.czl.chatClient.AppServerType;
 import com.czl.chatClient.bean.NettyMessage;
+import com.czl.chatServer.netty.core.NodeServerType;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -115,7 +116,7 @@ public class NsAppMessageDecoder extends LengthFieldBasedFrameDecoder {
 
 		} else {
 			
-			if (AppServerType.isCommand(message.getHeader())) {
+			if (AppServerType.isCommand(message.getHeader())||NodeServerType.isCommand(message.getHeader())) {
 				
 				if (in.readableBytes() < 1) {
 					in.resetReaderIndex();

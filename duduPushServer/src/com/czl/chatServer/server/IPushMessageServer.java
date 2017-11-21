@@ -83,5 +83,17 @@ public interface IPushMessageServer {
 	  * @exception throws [异常类型] [异常说明]
 	  * @see [类、类#方法、类#成员]
 	 */
-    public void pushCompelte(ChannelHandlerContext ctx, NettyMessage msg);
+    public void pushMsgCompelte(ChannelHandlerContext ctx, NettyMessage msg);
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述： 消息列表推送成功
+      * @author zhouxue
+      * @param ctx
+      * @param msg [参数说明]
+      * @return void [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public void pushMsgsCompelte(ChannelHandlerContext ctx, NettyMessage msg);
 }

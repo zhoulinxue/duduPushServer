@@ -12,6 +12,16 @@ import io.netty.channel.ChannelHandlerContext;
 
 public class PushMessageImpl implements IPushMessageServer
 {
+    private static PushMessageImpl instance;
+    
+    public static PushMessageImpl getInstance()
+    {
+        if (instance == null)
+        {
+            instance = new PushMessageImpl();
+        }
+        return instance;
+    }
     
     @Override
     public void pushImMessage(Channel ctx, NettyMessage msg)
@@ -20,7 +30,7 @@ public class PushMessageImpl implements IPushMessageServer
         // TODO Auto-generated method stub
         
     }
-
+    
     @Override
     public void sendIMFailed(Channel ctx, BasePushMessage pmsg)
             throws UnsupportedEncodingException
@@ -28,30 +38,37 @@ public class PushMessageImpl implements IPushMessageServer
         // TODO Auto-generated method stub
         
     }
-
+    
     @Override
     public void pushRSMessage(Channel ctx, NettyMessage msg)
     {
         // TODO Auto-generated method stub
         
     }
-
+    
     @Override
     public void pushRSMessage(String uid, String[] data)
     {
         // TODO Auto-generated method stub
         
     }
-
+    
     @Override
     public void pushImMessages(Channel ctx, DuduUser myuser)
     {
         // TODO Auto-generated method stub
         
     }
-
+    
     @Override
-    public void pushCompelte(ChannelHandlerContext ctx, NettyMessage msg)
+    public void pushMsgCompelte(ChannelHandlerContext ctx, NettyMessage msg)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+    
+    @Override
+    public void pushMsgsCompelte(ChannelHandlerContext ctx, NettyMessage msg)
     {
         // TODO Auto-generated method stub
         
