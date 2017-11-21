@@ -1,6 +1,6 @@
 package com.czl.chatServer;
 
-import com.czl.chatServer.server.NSStartServer;
+import com.czl.chatServer.server.INSStartServer;
 import com.czl.chatServer.server.Impl.NSStartServerImpl;
 
 /**
@@ -17,7 +17,7 @@ public class NSMain
 {
     public static void main(String[] args)
     {
-        NSStartServer server = new NSStartServerImpl();
+        INSStartServer server = new NSStartServerImpl();
         server.start();
     }
 }

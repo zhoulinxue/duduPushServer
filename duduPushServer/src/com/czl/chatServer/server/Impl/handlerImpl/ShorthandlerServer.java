@@ -1,7 +1,7 @@
 package com.czl.chatServer.server.Impl.handlerImpl;
 
 import com.czl.chatClient.bean.NettyMessage;
-import com.czl.chatServer.server.HandlerServer;
+import com.czl.chatServer.server.IHandlerServer;
 
 import io.netty.channel.ChannelHandlerContext;
 /**
@@ -14,7 +14,7 @@ import io.netty.channel.ChannelHandlerContext;
  * Copyright: Copyright (c) zhouxue Co.,Ltd. 2017
  * Company:"zhouxue" org
  */
-public class ShorthandlerServer implements HandlerServer{
+public class ShorthandlerServer implements IHandlerServer{
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {

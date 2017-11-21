@@ -1,7 +1,8 @@
 package com.czl.chatServer;
 
 import com.alibaba.fastjson.JSONObject;
-import com.czl.chatServer.server.HandlerServer;
+import com.czl.chatServer.server.IHandlerServer;
+import com.czl.chatServer.server.Impl.handlerImpl.AppConnectServerImpl;
 import com.czl.chatServer.server.Impl.handlerImpl.AppHandlerServer;
 import com.czl.chatServer.server.Impl.handlerImpl.NodeHandlerServer;
 import com.czl.chatServer.server.Impl.handlerImpl.ShorthandlerServer;
@@ -269,7 +270,7 @@ public class NSConfig
         this.builder = builder;
     }
     
-    private HandlerServer getAppHandler()
+    private IHandlerServer getAppHandler()
     {
         // TODO Auto-generated method stub
         return builder.getAppHandler();
@@ -277,67 +278,67 @@ public class NSConfig
     
     class Builder
     {
-        private HandlerServer appHandler;
+        private IHandlerServer appHandler;
         
-        private HandlerServer nodeHandler;
+        private IHandlerServer nodeHandler;
         
-        private HandlerServer shorHandler;
+        private IHandlerServer shorHandler;
         
         public Builder()
         {
             super();
         }
         
-        public HandlerServer getAppHandler()
+        public IHandlerServer getAppHandler()
         {
             return appHandler;
         }
         
-        public Builder setAppHandler(HandlerServer appHandler)
+        public Builder setAppHandler(IHandlerServer appHandler)
         {
             this.appHandler = appHandler;
             return this;
         }
         
-        public HandlerServer getNodeHandler()
+        public IHandlerServer getNodeHandler()
         {
             return nodeHandler;
         }
         
-        public Builder setNodeHandler(HandlerServer nodeHandler)
+        public Builder setNodeHandler(IHandlerServer nodeHandler)
         {
             this.nodeHandler = nodeHandler;
             return this;
         }
         
-        public HandlerServer getShorHandler()
+        public IHandlerServer getShorHandler()
         {
             return shorHandler;
         }
         
-        public Builder setShorHandler(HandlerServer shorHandler)
+        public Builder setShorHandler(IHandlerServer shorHandler)
         {
             this.shorHandler = shorHandler;
             return this;
         }
         
     }
-
-    public HandlerServer getServerHandler(ServerType type)
+    
+    public IHandlerServer getServerHandler(ServerType type)
     {
         // TODO Auto-generated method stub
-        HandlerServer  server=null;
+        IHandlerServer server = null;
         switch (type)
         {
             case AppServer:
-                server=getAppHandler();
+                server = getAppHandler();
                 break;
             
             case NodeServer:
-                server=getNodeHandler();
+                server = getNodeHandler();
                 break;
             case ShortClient:
-                server=getShorHandler();
+                server = getShorHandler();
                 break;
             
             default:
@@ -345,18 +346,17 @@ public class NSConfig
         }
         return server;
     }
-
-    private HandlerServer getShorHandler()
+    
+    private IHandlerServer getShorHandler()
     {
         // TODO Auto-generated method stub
         return builder.getShorHandler();
     }
-
-    private HandlerServer getNodeHandler()
+    
+    private IHandlerServer getNodeHandler()
     {
         // TODO Auto-generated method stub
         return builder.getNodeHandler();
     }
-
-   
+    
 }

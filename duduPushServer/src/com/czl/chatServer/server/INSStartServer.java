@@ -13,7 +13,7 @@ import com.czl.chatServer.NSConfig;
  * Company:"zhouxue" org
  */
 
-public interface NSStartServer {
+public interface INSStartServer {
 	/**
 	 * 开启NS 服务
 	 */

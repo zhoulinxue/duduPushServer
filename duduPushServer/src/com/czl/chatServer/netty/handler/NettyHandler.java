@@ -1,7 +1,7 @@
 package com.czl.chatServer.netty.handler;
 
 import com.czl.chatClient.bean.NettyMessage;
-import com.czl.chatServer.server.HandlerServer;
+import com.czl.chatServer.server.IHandlerServer;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -16,9 +16,9 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
  * Company:"zhouxue" org
  */
 public class NettyHandler extends ChannelInboundHandlerAdapter {
-    private HandlerServer server;
+    private IHandlerServer server;
 
-    public NettyHandler(HandlerServer server) {
+    public NettyHandler(IHandlerServer server) {
 	super();
 	this.server = server;
     }

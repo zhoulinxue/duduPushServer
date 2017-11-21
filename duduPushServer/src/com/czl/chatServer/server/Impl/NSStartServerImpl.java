@@ -5,7 +5,7 @@ import com.czl.chatServer.NSConfig;
 import com.czl.chatServer.ServerType;
 import com.czl.chatServer.netty.NettyServer;
 import com.czl.chatServer.netty.NSClient;
-import com.czl.chatServer.server.NSStartServer;
+import com.czl.chatServer.server.INSStartServer;
 /**
  * 
  * 项目名称：duduPushServer
@@ -16,7 +16,7 @@ import com.czl.chatServer.server.NSStartServer;
  * Copyright: Copyright (c) zhouxue Co.,Ltd. 2017
  * Company:"zhouxue" org
  */
-public class NSStartServerImpl implements NSStartServer {
+public class NSStartServerImpl implements INSStartServer {
 
     @Override
     public  NSConfig initConfig() {

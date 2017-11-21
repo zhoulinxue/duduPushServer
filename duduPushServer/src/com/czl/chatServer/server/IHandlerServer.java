@@ -13,7 +13,7 @@ import io.netty.channel.ChannelHandlerContext;
  * Copyright: Copyright (c) zhouxue Co.,Ltd. 2017
  * Company:"zhouxue" org
  */
-public interface HandlerServer {
+public interface IHandlerServer {
 
     public void channelActive(ChannelHandlerContext ctx) throws Exception;
 
