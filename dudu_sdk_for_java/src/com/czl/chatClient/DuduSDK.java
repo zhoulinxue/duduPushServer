@@ -178,28 +178,33 @@ public final class DuduSDK extends BaseMessageServiceImpl
      */
     private void connectMS(String ip, int port)
     {
+        
         EventLoopGroup group = new NioEventLoopGroup();
-        Bootstrap b = new Bootstrap();
-        b.group(group)
-                .channel(NioSocketChannel.class)
-                .option(ChannelOption.TCP_NODELAY, true)
-                .handler(new MSChannelInitializer(selfcallback, DuduSDK.this,
-                        paser));
         // 发起异步连接操作
         try
         {
+            Log.e("Dudu_SDK",
+                    "  MS: " + ip + ":" + port + "!!!"
+                            + paser.toJSONString(user));
+            Bootstrap b = new Bootstrap();
+            b.group(group)
+                    .channel(NioSocketChannel.class)
+                    .option(ChannelOption.TCP_NODELAY, true)
+                    .handler(new MSChannelInitializer(selfcallback,
+                            DuduSDK.this, paser, user.getUserid()));
+            
             ChannelFuture future = b.connect(ip, port)
                     .channel()
                     .closeFuture()
                     .await();
             if (!future.isSuccess())
             {
-                sleepTime = 20 * 1000;
+                sleepTime = 10 * 1000;
                 reconnect();
             }
-            Log.e("Dudu_SDK", "  MS: " + ip + ":" + port);
+            
         }
-        catch (InterruptedException e)
+        catch (Exception e)
         {
             e.printStackTrace();
         }
@@ -735,9 +740,7 @@ public final class DuduSDK extends BaseMessageServiceImpl
                         DuduPosition feuser = (DuduPosition) paser
                                 .parseObject(splits[0], DuduPosition.class);
                         if (!groupbean.getActiveUsers().contains(feuser))
-                        {
                             groupbean.getActiveUsers().add(feuser);
-                        }
                     }
                     break;
                 case EG:
@@ -882,7 +885,8 @@ public final class DuduSDK extends BaseMessageServiceImpl
     
     protected boolean isBusy()
     {
-        return isBusy;
+        Log.e("", "是否繁忙" + isBusy + "!!" + (callingUser == null));
+        return isBusy && callingUser != null;
     }
     
     protected void setBusy(boolean isBusy)
@@ -897,6 +901,7 @@ public final class DuduSDK extends BaseMessageServiceImpl
     
     protected void setCallingUser(DuduUser callingUser)
     {
+        Log.e("", "繁忙状态改变" + (callingUser != null));
         setBusy(callingUser != null);
         this.callingUser = callingUser;
     }

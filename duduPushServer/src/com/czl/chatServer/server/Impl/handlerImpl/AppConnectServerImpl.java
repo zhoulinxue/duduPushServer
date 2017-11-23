@@ -87,7 +87,19 @@ public class AppConnectServerImpl extends BaseMessageServiceImpl
         }
         
     }
-    
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：  重复登录 的处理逻辑
+      * @author zhouxue
+      * @param alreadyUser
+      * @param currentUser
+      * @throws IllegalArgumentException
+      * @throws UnsupportedEncodingException [参数说明]
+      * @return void [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
     public void reLogin(DuduUser alreadyUser, DuduUser currentUser)
             throws IllegalArgumentException, UnsupportedEncodingException
     {

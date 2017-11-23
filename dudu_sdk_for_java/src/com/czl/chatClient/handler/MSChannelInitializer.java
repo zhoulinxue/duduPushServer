@@ -18,11 +18,13 @@ public class MSChannelInitializer extends ChannelInitializer<SocketChannel> {
 	private RecivMessageCallBack callBack;
 	private onConnetCallBack connect;
 	private JsonParser parser;
+	private String content;
 
-	public MSChannelInitializer(RecivMessageCallBack callBack, onConnetCallBack connect, JsonParser parser) {
+	public MSChannelInitializer(RecivMessageCallBack callBack, onConnetCallBack connect, JsonParser parser,String content) {
 		this.callBack = callBack;
 		this.connect = connect;
 		this.parser = parser;
+		this.content=content;
 	}
 
 	@Override
@@ -31,7 +33,7 @@ public class MSChannelInitializer extends ChannelInitializer<SocketChannel> {
 				Unpooled.copiedBuffer(Constants.MESSAFE_END_TAG.getBytes())));
 		socketChannel.pipeline().addLast(new NettyMessageDecoder(1024 * 1024, 4, 4));
 		socketChannel.pipeline().addLast("NettyMessageEncoder", new NettyMessageEncoder());
-		socketChannel.pipeline().addLast("SocketClientShortHandler", new SocketClientShortHandler(callBack,connect,parser));
+		socketChannel.pipeline().addLast("SocketClientShortHandler", new SocketClientShortHandler(callBack,connect,parser,content));
 
 	}
 }

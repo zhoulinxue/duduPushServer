@@ -522,7 +522,8 @@ public class DuduClient implements SendMessageLisenter {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		if(duduUser!=null&&duduUser.getUserid().equals(sdk.getCallingUser())){
+		 Log.e("","繁忙状态改变"+(duduUser!=null)+"!!"+(duduUser.getUserid()+"!!!!"+sdk.getCallingUser()));
+		if(duduUser!=null&&duduUser.getUserid().equals(sdk.getCallingUser().getUserid())){
 			sdk.setCallingUser(null);
 		}
 	}

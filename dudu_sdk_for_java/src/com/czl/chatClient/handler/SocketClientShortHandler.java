@@ -2,6 +2,7 @@ package com.czl.chatClient.handler;
 
 import java.io.UnsupportedEncodingException;
 
+import com.czl.chatClient.Constants;
 import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatClient.login.onConnetCallBack;
 import com.czl.chatClient.receiver.RecivMessageCallBack;
@@ -17,10 +18,12 @@ import io.netty.util.ReferenceCountUtil;
 public class SocketClientShortHandler extends ChannelInboundHandlerAdapter {
 	public RecivMessageCallBack messageBuff;
 	private JsonParser parser;
+	private String content;
 
-	public SocketClientShortHandler(RecivMessageCallBack stringBuffer, onConnetCallBack connect, JsonParser parser) {
+	public SocketClientShortHandler(RecivMessageCallBack stringBuffer, onConnetCallBack connect, JsonParser parser,String content) {
 		this.messageBuff = stringBuffer;
 		this.parser=parser;
+		this.content=content;
 	}
 
 	/**
@@ -64,7 +67,7 @@ public class SocketClientShortHandler extends ChannelInboundHandlerAdapter {
 		message.setHeader0((byte) 65);// A
 		message.setHeader1((byte) 67);
 		try {
-			message.setContent(("").getBytes("UTF-8"));
+			message.setContent((content).getBytes("UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
