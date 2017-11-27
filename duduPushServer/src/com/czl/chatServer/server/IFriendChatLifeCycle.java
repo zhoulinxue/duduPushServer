@@ -40,6 +40,17 @@ public interface IFriendChatLifeCycle
      */
     public void endFriendChat(ChannelHandlerContext ctx, NettyMessage msg);
     /**
+     * 根据挂断者ID挂断 一对一对讲
+      * 功能简述：
+      * 功能详细描述：
+      * @author zhouxue
+      * @param userid [参数说明]
+      * @return void [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public void endFriendChat(String userid);
+    /**
      * 
       * 功能简述：
       * 功能详细描述：接受对话
@@ -76,6 +87,7 @@ public interface IFriendChatLifeCycle
       * @see [类、类#方法、类#成员]
      */
     public void cancelCall(ChannelHandlerContext ctx, NettyMessage msg);
+   
     
     
     

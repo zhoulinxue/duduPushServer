@@ -117,6 +117,13 @@ public class ChattingModelManager implements IChatModelServer
         // TODO Auto-generated method stub
         
     }
+
+    @Override
+    public void userQuit(String userid)
+    {
+        // TODO Auto-generated method stub
+        
+    }
     
     
 }

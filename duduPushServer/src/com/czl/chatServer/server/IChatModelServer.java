@@ -62,6 +62,17 @@ public interface IChatModelServer
       * @see [类、类#方法、类#成员]
      */
     public void userQuit(ChannelHandlerContext ctx, NettyMessage msg);
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述： 根据 uid 退出频道
+      * @author zhouxue
+      * @param userid [参数说明]
+      * @return void [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public void userQuit(String userid);
     
     /**
      * 
@@ -127,5 +138,6 @@ public interface IChatModelServer
       * @see [类、类#方法、类#成员]
      */
     public void chatbyteEnd(ChannelHandlerContext ctx, NettyMessage msg);
+
     
 }

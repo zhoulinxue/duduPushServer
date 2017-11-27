@@ -1,4 +1,4 @@
-package com.czl.chatServer.server;
+package com.czl.chatServer.server.Impl;
 
 import java.io.UnsupportedEncodingException;
 import java.util.concurrent.TimeUnit;
@@ -12,11 +12,13 @@ import com.czl.chatServer.Constants;
 import com.czl.chatServer.netty.decoder.NsClientMessageDecoder;
 import com.czl.chatServer.netty.encode.NettyMessageServerEncoder;
 import com.czl.chatServer.netty.handler.NsClientHandler;
+import com.czl.chatServer.server.BaseMessageServer;
 import com.czl.chatServer.utils.RedisManager;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -310,6 +312,19 @@ public class BaseMessageServiceImpl implements BaseMessageServer
         NettyMessage message = buildMessage(header);
         message.setContent(getContentByte(content));
         return message;
+    }
+
+    @Override
+    public String getUserIdFromChannel(ChannelHandlerContext ctx)
+    {
+        // TODO Auto-generated method stub
+        String aa = ctx.attr(Constants.KEY_USER_ID).get();
+        if (aa != null) {
+//          System.out.println("用户id="+aa);
+            return aa;
+        } else {
+            return null;
+        }
     }
     
 }

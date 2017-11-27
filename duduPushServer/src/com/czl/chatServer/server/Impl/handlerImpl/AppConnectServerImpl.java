@@ -10,9 +10,10 @@ import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatClient.utils.Log;
 import com.czl.chatClient.utils.StringUtils;
 import com.czl.chatServer.Constants;
+import com.czl.chatServer.ServerType;
 import com.czl.chatServer.netty.ServerException;
-import com.czl.chatServer.server.BaseMessageServiceImpl;
 import com.czl.chatServer.server.IConnectLifeCycle;
+import com.czl.chatServer.server.Impl.BaseMessageServiceImpl;
 import com.czl.chatServer.server.Impl.PushMessageImpl;
 import com.czl.chatServer.utils.DBUtils;
 import com.czl.chatServer.utils.RedisManager;
@@ -22,7 +23,7 @@ import io.netty.channel.ChannelHandlerContext;
 
 public class AppConnectServerImpl extends BaseMessageServiceImpl
         implements IConnectLifeCycle
-{   
+{
     @Override
     public void appOffline(ChannelHandlerContext ctx)
     {
@@ -61,7 +62,7 @@ public class AppConnectServerImpl extends BaseMessageServiceImpl
             {
                 Log.e("未注册用户 登陆  ——" + user.getUserid());
             }
-                // 从 redis 查看当前登录信息
+            // 从 redis 查看当前登录信息
             DuduUser olduser = RedisManager.getUserFromRedis(user.getUserid());
             if (olduser != null
                     && !user.getDiviceid().equals(olduser.getDiviceid()))
@@ -71,7 +72,8 @@ public class AppConnectServerImpl extends BaseMessageServiceImpl
             }
             else
             {
-                Channel channel = RedisManager.getChannelByUid(user.getUserid());
+                Channel channel = RedisManager
+                        .getChannelByUid(user.getUserid());
                 if (channel != null && olduser != null)
                 {
                     //在同一终端 登录两次  关闭 老的 连接
@@ -87,6 +89,7 @@ public class AppConnectServerImpl extends BaseMessageServiceImpl
         }
         
     }
+    
     /**
      * 
       * 功能简述：
@@ -110,7 +113,8 @@ public class AppConnectServerImpl extends BaseMessageServiceImpl
         {
             System.out.println(currentUser.getUserid() + "用户已经在线了_同服务器");
             // 本服务器
-            Channel nbcapp = RedisManager.getChannelByUid(alreadyUser.getUserid());
+            Channel nbcapp = RedisManager
+                    .getChannelByUid(alreadyUser.getUserid());
             if (!currentUser.getDiviceid().equals(alreadyUser.getDiviceid())
                     && nbcapp != null)
             {
@@ -172,7 +176,9 @@ public class AppConnectServerImpl extends BaseMessageServiceImpl
     public void loginOut(ChannelHandlerContext ctx, NettyMessage msg)
     {
         // TODO Auto-generated method stub
-        
+        String fromUserId = getUserIdFromChannel(ctx);
+        RedisManager.app2NSLoginout(fromUserId,
+                ctx.channel().localAddress().toString().substring(1));
     }
     
     @Override
@@ -186,6 +192,25 @@ public class AppConnectServerImpl extends BaseMessageServiceImpl
             offlineMsg = buildMessage(AppServerType.EX_TYPE,
                     ServerException.OFF_LINE.toInfo());
             sendMessage(offlineMsg, ctx.channel());
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+    }
+    
+    @Override
+    public void testConnect(ChannelHandlerContext ctx, NettyMessage msg)
+    {
+        // TODO Auto-generated method stub
+        NettyMessage arg0;
+        try
+        {
+            arg0 = buildMessage(AppServerType.OK);
+            arg0.setContent(("|\n").getBytes(Constants.CONTENT_CHAR_SET));
+            ctx.writeAndFlush(arg0);
         }
         catch (UnsupportedEncodingException e)
         {

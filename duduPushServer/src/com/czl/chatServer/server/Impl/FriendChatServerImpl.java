@@ -42,5 +42,12 @@ public class FriendChatServerImpl  implements IFriendChatLifeCycle
         // TODO Auto-generated method stub
         
     }
+
+    @Override
+    public void endFriendChat(String userid)
+    {
+        // TODO Auto-generated method stub
+        
+    }
     
 }

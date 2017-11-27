@@ -54,4 +54,5 @@ public class Constants {
 	public static String OFF_USER="off_user"; 
 	    // 
 	public static String ZKADDRESS="192.168.13.31:2181";
+    public static String NS_IP_PORT= "ns.";
 }

@@ -66,6 +66,18 @@ public interface IConnectLifeCycle
       * @see [类、类#方法、类#成员]
      */
     public void loginTimeOut(ChannelHandlerContext ctx);
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：
+      * @author zhouxue
+      * @param ctx
+      * @param msg [参数说明]
+      * @return void [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public void testConnect(ChannelHandlerContext ctx, NettyMessage msg);
     
     
 }

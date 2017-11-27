@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.alibaba.fastjson.JSONObject;
 import com.czl.chatClient.bean.DuduUser;
+import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatClient.utils.DateUtils;
 import com.czl.chatClient.utils.StringUtils;
 import com.czl.chatServer.Constants;
@@ -120,6 +121,7 @@ public class RedisManager
         }
         return true;
     }
+    
     /**
      * 
       * 功能简述：
@@ -136,6 +138,7 @@ public class RedisManager
         JedisUtils.del(Constants.OFFLINE_CHATTING_USER + userId);
         JedisUtils.setDel(Constants.OFFLINE_CHATTING_GROUP, userId);
     }
+    
     /**
      * 
       * 功能简述：
@@ -152,6 +155,7 @@ public class RedisManager
         // TODO Auto-generated method stub
         channelMap.put(userid, channel);
     }
+    
     /**
      * 
       * 功能简述：
@@ -166,6 +170,77 @@ public class RedisManager
     {
         // TODO Auto-generated method stub
         channelMap.remove(userid);
+    }
+    
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：
+      * @author zhouxue
+      * @param userId
+      * @param currNsIpPort
+      * @return [参数说明]
+      * @return boolean [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public static boolean app2NSLoginout(String userId, String currNsIpPort)
+    {
+        String key = Constants.NS_IP_PORT + currNsIpPort;
+        try
+        {
+            String sum = JedisUtils.get(key);
+            if (sum == null || "".equals(sum))
+            {
+                sum = "1";
+            }
+            else
+            {
+                if (Integer.valueOf(sum) < 0)
+                {
+                    sum = "1";
+                }
+            }
+            JedisUtils.set(key, String.valueOf(Integer.valueOf(sum) - 1), 0);
+        }
+        catch (Exception e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        deleteCalling(userId);
+        JedisUtils.setDel(Constants.ON_LIN_USER, userId);
+        JedisUtils.setDel(Constants.THIS_NS_ONLIN + currNsIpPort, userId);
+        JedisUtils.del(Constants.USER_ISONLINE + userId);
+        delteUserInfo(userId);
+        System.out.println("userId_redis_下线" + userId);
+        return true;
+    }
+    
+    public static void deleteCalling(String userid)
+    {
+        // TODO Auto-generated method stub
+        String callerid = getCallingMsg(userid);
+        JedisUtils.del(Constants.CALL_USER + userid);
+        JedisUtils.del(Constants.CALLER + callerid);
+    }
+    
+    public static String getCallingMsg(String userid)
+    {
+        // TODO Auto-generated method stub
+        return JedisUtils.get(Constants.CALL_USER + userid);
+    }
+    
+    /**
+     * 删除用户信息
+     * 
+     * @param userid
+     * @return
+     */
+    public static void delteUserInfo(String userid)
+    {
+        // TODO Auto-generated method stub
+        JedisUtils.del(Constants.USER + userid);
     }
     
 }

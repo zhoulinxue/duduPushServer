@@ -6,6 +6,7 @@ import com.czl.chatClient.AppServerType;
 import com.czl.chatClient.bean.NettyMessage;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 
 public interface BaseMessageServer {
 	//获取 消息头
@@ -41,6 +42,8 @@ public interface BaseMessageServer {
      public void  responeClient(Channel ctx,NettyMessage msg)throws UnsupportedEncodingException;
      //回复 客户端
      public boolean  formatMessage(String[] data);
+        //从绑定的连接中获取 uid
+     public String getUserIdFromChannel(ChannelHandlerContext ctx);
 
      
 }
