@@ -29,6 +29,7 @@ public class CuratorWatcherTest
         System.out.println("zk client start successfully!");
         
         // 2.Register watcher
+        @SuppressWarnings("resource")
         PathChildrenCache watcher = new PathChildrenCache(client, ZK_PATH, true // if cache data
         );
         watcher.getListenable().addListener((client1, event) -> {

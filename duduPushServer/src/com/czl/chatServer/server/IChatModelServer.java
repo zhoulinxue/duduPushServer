@@ -1,9 +1,13 @@
 package com.czl.chatServer.server;
 
+import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.Map;
 
+import com.czl.chatClient.bean.DuduUser;
 import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatServer.ChatType;
+import com.czl.chatServer.UserStatus;
 
 import io.netty.channel.ChannelHandlerContext;
 
@@ -34,8 +38,7 @@ public interface IChatModelServer
       * @see [类、类#方法、类#成员]
      */
     
-    public IChatModelServer creatChat(ChannelHandlerContext ctx, NettyMessage msg,
-            ChatType type);
+    public boolean creatChat(ChannelHandlerContext ctx, NettyMessage msg) throws UnsupportedEncodingException;
     
     /**
      * 
@@ -48,7 +51,7 @@ public interface IChatModelServer
       * @exception throws [异常类型] [异常说明]
       * @see [类、类#方法、类#成员]
      */
-    public void newUserIn(ChannelHandlerContext ctx, NettyMessage msg);
+    public IChatModelServer newUserIn(ChannelHandlerContext ctx, NettyMessage msg);
     
     /**
      * 
@@ -117,18 +120,6 @@ public interface IChatModelServer
     /**
      * 
       * 功能简述：
-      * 功能详细描述： 获取 已 再对讲中的 集合
-      * @author zhouxue
-      * @param type
-      * @return [参数说明]
-      * @return Map<String,IChatModelServer> [返回类型说明]
-      * @exception throws [异常类型] [异常说明]
-      * @see [类、类#方法、类#成员]
-     */
-    public Map<String, IChatModelServer> getModels(ChatType type);
-    /**
-     * 
-      * 功能简述：
       * 功能详细描述： 数据发送结束
       * @author zhouxue
       * @param ctx
@@ -138,6 +129,62 @@ public interface IChatModelServer
       * @see [类、类#方法、类#成员]
      */
     public void chatbyteEnd(ChannelHandlerContext ctx, NettyMessage msg);
-
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：
+      * @author zhouxue
+      * @return [参数说明]
+      * @return UserStatus [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public UserStatus getUserStatus();
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述： 好友正忙
+      * @author zhouxue
+      * @param ctx
+      * @param msg [参数说明]
+      * @return void [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public void userBusy(ChannelHandlerContext ctx, NettyMessage msg);
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述： 获取对讲的type
+      * @author zhouxue
+      * @return [参数说明]
+      * @return ChatType [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public ChatType getChatType();
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述： 用户是否繁忙
+      * @author zhouxue
+      * @param ctx
+      * @param msg [参数说明]
+      * @return void [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public  boolean userIsBusy(ChannelHandlerContext ctx, NettyMessage msg);
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：获取正在对讲中的人
+      * @author zhouxue
+      * @return [参数说明]
+      * @return List<DuduUser> [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public List<DuduUser> getUsers();
     
 }

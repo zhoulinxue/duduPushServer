@@ -924,7 +924,8 @@ public class JedisUtils {
 	 * @param jedis
 	 * @param isBroken
 	 */
-	public static void returnBrokenResource(Jedis jedis) {
+	@SuppressWarnings("deprecation")
+    public static void returnBrokenResource(Jedis jedis) {
 		if (jedis != null) {
 			jedisPool.returnBrokenResource(jedis);
 		}
@@ -936,7 +937,8 @@ public class JedisUtils {
 	 * @param jedis
 	 * @param isBroken
 	 */
-	public static void returnResource(Jedis jedis) {
+	@SuppressWarnings("deprecation")
+    public static void returnResource(Jedis jedis) {
 		if (jedis != null) {
 			jedisPool.returnResource(jedis);
 		}

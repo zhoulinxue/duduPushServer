@@ -1,8 +1,6 @@
 package com.czl.chatServer.server.Impl.handlerImpl;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.czl.chatClient.AppServerType;
 import com.czl.chatClient.bean.DuduUser;
@@ -10,7 +8,6 @@ import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatClient.utils.Log;
 import com.czl.chatClient.utils.StringUtils;
 import com.czl.chatServer.Constants;
-import com.czl.chatServer.ServerType;
 import com.czl.chatServer.netty.ServerException;
 import com.czl.chatServer.server.IConnectLifeCycle;
 import com.czl.chatServer.server.Impl.BaseMessageServiceImpl;

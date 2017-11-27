@@ -66,6 +66,7 @@ public class CuratorLeaderTest
         Thread.sleep(Integer.MAX_VALUE);
     }
     
+    @SuppressWarnings("deprecation")
     private static void registerListener(LeaderSelectorListener listener)
     {
         // 1.Connect to zk
@@ -84,6 +85,7 @@ public class CuratorLeaderTest
         }
         
         // 3.Register listener
+        @SuppressWarnings("resource")
         LeaderSelector selector = new LeaderSelector(client, ZK_PATH, listener);
         selector.autoRequeue();
         selector.start();

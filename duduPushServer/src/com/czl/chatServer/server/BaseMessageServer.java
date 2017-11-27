@@ -25,7 +25,7 @@ public interface BaseMessageServer {
 	 //获取内容的byte[]
 	 public byte[] getContentByte(String content)throws Exception;
 	 //json 转对象
-	 public Object jsonToObJect(String json,Class calss) throws Exception;
+	 public Object jsonToObJect(String json,Class<?> calss) throws Exception;
 	 // 发送异常消息
 	 public NettyMessage sendEX(String content)throws Exception;
 	// 发送消息
@@ -44,6 +44,7 @@ public interface BaseMessageServer {
      public boolean  formatMessage(String[] data);
         //从绑定的连接中获取 uid
      public String getUserIdFromChannel(ChannelHandlerContext ctx);
+     public String[] getUserDataFromMsg(NettyMessage msg);
 
      
 }

@@ -19,7 +19,7 @@ public class Constants {
 	public static String CONTENT_CHAR_SET ="utf-8";
 	public static String POSITION_KEY="position.";
 	public static String CALL_USER="caling.";
-	public static String CALLER="caller.";
+	public static String CALLED="caller.";
 	public static String CHANNEL_ID="9999";
 	public static String CHATTING_ID="chatting_id";
 	public static String CHATTING_IN_OR_WITH="ct.";

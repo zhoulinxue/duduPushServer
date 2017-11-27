@@ -42,13 +42,7 @@ public final class NettyMessageServerEncoder extends MessageToByteEncoder<NettyM
 			}
 			if(msg.getFromUerId()!=null && msg.getFromUerId().length!=0){
 				sendBuf.writeBytes(msg.getFromUerId());
-			}
-//			if(msg.getMessageId()!=null){
-//				sendBuf.writeBytes(msg.getMessageId());
-//			}else{
-//				byte[] msgId=ManageAPI.getRandomMsgId();
-//				sendBuf.writeBytes(msgId);
-//			}			
+			}			
 			Log.printeNettymsg(msg, "发送的消息");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

@@ -1,5 +1,7 @@
 package com.czl.chatServer.server;
 
+import java.io.UnsupportedEncodingException;
+
 import com.czl.chatClient.bean.NettyMessage;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -26,7 +28,7 @@ public interface IFriendChatLifeCycle
       * @exception throws [异常类型] [异常说明]
       * @see [类、类#方法、类#成员]
      */
-    public void invitesFriend(ChannelHandlerContext ctx, NettyMessage msg);
+    public void invitesFriend(ChannelHandlerContext ctx, NettyMessage msg)throws UnsupportedEncodingException;
     /**
      * 
       * 功能简述：
@@ -38,7 +40,7 @@ public interface IFriendChatLifeCycle
       * @exception throws [异常类型] [异常说明]
       * @see [类、类#方法、类#成员]
      */
-    public void endFriendChat(ChannelHandlerContext ctx, NettyMessage msg);
+    public void endFriendChat(ChannelHandlerContext ctx, NettyMessage msg)throws UnsupportedEncodingException;
     /**
      * 根据挂断者ID挂断 一对一对讲
       * 功能简述：
@@ -49,7 +51,7 @@ public interface IFriendChatLifeCycle
       * @exception throws [异常类型] [异常说明]
       * @see [类、类#方法、类#成员]
      */
-    public void endFriendChat(String userid);
+    public void endFriendChat(String userid)throws UnsupportedEncodingException;
     /**
      * 
       * 功能简述：
@@ -61,7 +63,7 @@ public interface IFriendChatLifeCycle
       * @exception throws [异常类型] [异常说明]
       * @see [类、类#方法、类#成员]
      */
-    public void agreeCall(ChannelHandlerContext ctx, NettyMessage msg);
+    public void agreeCall(ChannelHandlerContext ctx, NettyMessage msg) throws UnsupportedEncodingException;
     /**
      * 
       * 功能简述：
@@ -73,7 +75,7 @@ public interface IFriendChatLifeCycle
       * @exception throws [异常类型] [异常说明]
       * @see [类、类#方法、类#成员]
      */
-    public void reJectCall(ChannelHandlerContext ctx, NettyMessage msg);
+    public void reJectCall(ChannelHandlerContext ctx, NettyMessage msg)throws UnsupportedEncodingException;
     
     /**
      * 
@@ -86,7 +88,7 @@ public interface IFriendChatLifeCycle
       * @exception throws [异常类型] [异常说明]
       * @see [类、类#方法、类#成员]
      */
-    public void cancelCall(ChannelHandlerContext ctx, NettyMessage msg);
+    public void cancelCall(ChannelHandlerContext ctx, NettyMessage msg)throws  UnsupportedEncodingException;
    
     
     

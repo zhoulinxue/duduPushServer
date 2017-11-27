@@ -156,9 +156,8 @@ public class BaseMessageServiceImpl implements BaseMessageServer
         return newContent.getBytes(Constants.CONTENT_CHAR_SET);
     }
     
-    @SuppressWarnings("unchecked")
     @Override
-    public Object jsonToObJect(String json, Class calss)
+    public Object jsonToObJect(String json, Class<?> calss)
     {
         // TODO Auto-generated method stub
         return JSONObject.parseObject(json, calss);
@@ -166,7 +165,7 @@ public class BaseMessageServiceImpl implements BaseMessageServer
     
     @Override
     public NettyMessage sendEX(String content)
-            throws IllegalArgumentException, UnsupportedEncodingException
+            throws  UnsupportedEncodingException
     {
         // TODO Auto-generated method stub
         NettyMessage arg0 = buildMessage(AppServerType.EX_TYPE);
@@ -318,6 +317,7 @@ public class BaseMessageServiceImpl implements BaseMessageServer
     public String getUserIdFromChannel(ChannelHandlerContext ctx)
     {
         // TODO Auto-generated method stub
+        @SuppressWarnings("deprecation")
         String aa = ctx.attr(Constants.KEY_USER_ID).get();
         if (aa != null) {
 //          System.out.println("用户id="+aa);
@@ -325,6 +325,22 @@ public class BaseMessageServiceImpl implements BaseMessageServer
         } else {
             return null;
         }
+    }
+
+    @Override
+    public String[] getUserDataFromMsg(NettyMessage msg)
+    {
+        // TODO Auto-generated method stub
+        try
+        {
+            return (new String(msg.getContent(), Constants.CONTENT_CHAR_SET)).split("\\|");
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
     }
     
 }

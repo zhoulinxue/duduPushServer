@@ -1,10 +1,6 @@
 package com.czl.chatServer.server.Impl.handlerImpl;
 
-import org.w3c.dom.UserDataHandler;
-
-import com.czl.chatClient.bean.DuduUser;
 import com.czl.chatClient.bean.NettyMessage;
-import com.czl.chatServer.server.IChatModelServer;
 import com.czl.chatServer.server.IConnectLifeCycle;
 import com.czl.chatServer.server.IFriendChatLifeCycle;
 import com.czl.chatServer.server.IHandlerServer;
@@ -13,11 +9,9 @@ import com.czl.chatServer.server.IPushMessageServer;
 import com.czl.chatServer.server.Impl.BaseMessageServiceImpl;
 import com.czl.chatServer.server.Impl.ChattingModelManager;
 import com.czl.chatServer.server.Impl.FriendChatServerImpl;
-import com.czl.chatServer.server.Impl.GroupChatModel;
 import com.czl.chatServer.server.Impl.NaviServerImpl;
 import com.czl.chatServer.server.Impl.NettyServerImpl;
 import com.czl.chatServer.server.Impl.PushMessageImpl;
-import com.czl.chatServer.utils.RedisManager;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleState;
@@ -41,9 +35,6 @@ public class AppHandlerServer extends BaseMessageServiceImpl implements IHandler
     
     //一对一 对讲业务
     private IFriendChatLifeCycle friendChatServer = new FriendChatServerImpl();
-    
-    private IChatModelServer  groupChatServer=new GroupChatModel();
-    
     
     // 常规 业务
     private INettyServer nettyServer = new NettyServerImpl();
@@ -69,25 +60,27 @@ public class AppHandlerServer extends BaseMessageServiceImpl implements IHandler
                 connectServer.appLogin(ctx, msg);
                 break;
             case APP_EXIT:
-                        //redis 注销 用户信息
+                //redis 注销 用户信息
                 connectServer.loginOut(ctx, msg);
                 //根据 用户资料退出
-                friendChatServer.endFriendChat(getUserIdFromChannel(ctx));
-                groupChatServer.userQuit(getUserIdFromChannel(ctx));
+                ChattingModelManager.getInstance().userQuit(getUserIdFromChannel(ctx));
                 break;
             case FS:
-                friendChatServer.invitesFriend(ctx, msg);
+                ChattingModelManager.getInstance().creatChat(ctx, msg);
                 break;
             case FA:
                 friendChatServer.agreeCall(ctx, msg);
                 break;
             case FR:
+                ChattingModelManager.getInstance().finishFriendTalk(ctx, msg);
                 friendChatServer.reJectCall(ctx, msg);
                 break;
             case FE:
+                ChattingModelManager.getInstance().finishFriendTalk(ctx, msg);
                 friendChatServer.cancelCall(ctx, msg);
                 break;
             case ED:
+                ChattingModelManager.getInstance().finishFriendTalk(ctx, msg);
                 friendChatServer.endFriendChat(ctx, msg);
                 break;
             case ON_LINE:
