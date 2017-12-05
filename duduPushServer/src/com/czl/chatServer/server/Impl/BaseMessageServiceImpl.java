@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SimplePropertyPreFilter;
 import com.czl.chatClient.AppServerType;
+import com.czl.chatClient.bean.DuduUser;
 import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatClient.utils.StringUtils;
 import com.czl.chatServer.Constants;
@@ -103,7 +104,7 @@ public class BaseMessageServiceImpl implements BaseMessageServer
             
             if (ctx != null)
             {
-                String ip = ctx.attr(Constants.KEY_USER_ID).get();
+                String ip = ctx.localAddress().toString().substring(1);
                 if (!StringUtils.isEmpty(ip))
                 {
                     str = initIpAndPort(ip);
@@ -341,6 +342,17 @@ public class BaseMessageServiceImpl implements BaseMessageServer
             e.printStackTrace();
         }
         return null;
+    }
+    
+    public void sendIsOnLine(Channel ctx, DuduUser user, String uid) throws UnsupportedEncodingException {
+        // TODO Auto-generated method stub
+        if (user == null) {
+            NettyMessage message = buildMessage(AppServerType.OF, uid);
+            sendMessage(message, ctx);
+        } else {
+            NettyMessage message = buildMessage(AppServerType.ON_LINE, uid);
+            sendMessage(message, ctx);
+        }
     }
     
 }

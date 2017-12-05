@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 
+import com.czl.chatClient.bean.DuduPosition;
 import com.czl.chatClient.bean.DuduUser;
 import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatServer.ChatType;
@@ -51,7 +52,7 @@ public interface IChatModelServer
       * @exception throws [异常类型] [异常说明]
       * @see [类、类#方法、类#成员]
      */
-    public IChatModelServer newUserIn(ChannelHandlerContext ctx, NettyMessage msg);
+    public IChatModelServer newUserIn(ChannelHandlerContext ctx, NettyMessage msg)throws UnsupportedEncodingException;
     
     /**
      * 
@@ -64,7 +65,7 @@ public interface IChatModelServer
       * @exception throws [异常类型] [异常说明]
       * @see [类、类#方法、类#成员]
      */
-    public void userQuit(ChannelHandlerContext ctx, NettyMessage msg);
+    public void userQuit(ChannelHandlerContext ctx, NettyMessage msg)throws UnsupportedEncodingException;
     /**
      * 
       * 功能简述：
@@ -75,7 +76,7 @@ public interface IChatModelServer
       * @exception throws [异常类型] [异常说明]
       * @see [类、类#方法、类#成员]
      */
-    public void userQuit(String userid);
+    public void userQuit(String userid)throws UnsupportedEncodingException;
     
     /**
      * 
@@ -90,20 +91,7 @@ public interface IChatModelServer
      */
     
     public void finishGroup(ChannelHandlerContext ctx, NettyMessage msg);
-    
-    /**
-     * 
-      * 功能简述：
-      * 功能详细描述： 结束 好友对讲
-      * @author zhouxue
-      * @param ctx
-      * @param msg [参数说明]
-      * @return void [返回类型说明]
-      * @exception throws [异常类型] [异常说明]
-      * @see [类、类#方法、类#成员]
-     */
-    
-    public void finishFriendTalk(ChannelHandlerContext ctx, NettyMessage msg);
+   
     /**
      * 
       * 功能简述：
@@ -174,7 +162,7 @@ public interface IChatModelServer
       * @exception throws [异常类型] [异常说明]
       * @see [类、类#方法、类#成员]
      */
-    public  boolean userIsBusy(ChannelHandlerContext ctx, NettyMessage msg);
+    public  boolean userIsBusy(ChannelHandlerContext ctx, NettyMessage msg)throws UnsupportedEncodingException;
     /**
      * 
       * 功能简述：
@@ -185,6 +173,20 @@ public interface IChatModelServer
       * @exception throws [异常类型] [异常说明]
       * @see [类、类#方法、类#成员]
      */
-    public List<DuduUser> getUsers();
+    public List<DuduPosition> getUsers();
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述： 用户状态 变化
+      * @author zhouxue
+      * @param ctx
+      * @param msg [参数说明]
+      * @return void [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public void statusChanged(ChannelHandlerContext ctx, NettyMessage msg);
+    
+    public String  getServerId();
     
 }

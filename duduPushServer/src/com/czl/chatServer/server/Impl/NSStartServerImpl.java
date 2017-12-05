@@ -33,22 +33,14 @@ public class NSStartServerImpl implements INSStartServer {
     @Override
     public void startNodeServer(NSConfig config) {
 	// TODO Auto-generated method stub
-           NettyServer  server=new NettyServer(config, null, ServerType.NodeServer);
+           NettyServer  server=new NettyServer(config,  ServerType.NodeServer);
            server.start();
     }
 
     @Override
     public void startAppServer(NSConfig config) {
 	// TODO Auto-generated method stub
-	StringBuffer buffer = new StringBuffer();
-	buffer.append(config.getNsip());
-	buffer.append(Constants.IP_PORT_SEPORATE);
-	buffer.append(config.getNsport());
-	buffer.append(Constants.IP_PORT_SEPORATE);
-	buffer.append(config.getListeningport());
-	NSClient client = new NSClient(config.getServerip(), Integer.parseInt(config.getNodeport()), buffer.toString());
-	client.start();
-	NettyServer server = new NettyServer(config, client,ServerType.AppServer);
+	NettyServer server = new NettyServer(config,ServerType.AppServer);
 	server.start();
     }
 

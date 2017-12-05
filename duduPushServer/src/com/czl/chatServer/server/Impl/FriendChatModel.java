@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.czl.chatClient.AppServerType;
+import com.czl.chatClient.bean.DuduPosition;
 import com.czl.chatClient.bean.DuduUser;
 import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatServer.ChatType;
@@ -16,6 +17,7 @@ import com.czl.chatServer.server.IChatModelServer;
 import com.czl.chatServer.utils.DataBaseManager;
 import com.czl.chatServer.utils.RedisManager;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 
 public class FriendChatModel extends BaseMessageServiceImpl
@@ -113,10 +115,30 @@ public class FriendChatModel extends BaseMessageServiceImpl
     }
     
     @Override
-    public void userQuit(ChannelHandlerContext ctx, NettyMessage msg)
+    public void userQuit(ChannelHandlerContext ctx, NettyMessage msg)throws UnsupportedEncodingException
     {
         // TODO Auto-generated method stub
-        
+        String[] data = getUserDataFromMsg(msg);
+        String myuid = getUserIdFromChannel(ctx);
+        String friendId = RedisManager.getChatwithFriend(myuid);
+        Channel nbcapp = RedisManager.getChannelByUid(friendId);
+        NettyMessage mesg = null;
+        if (nbcapp != null)
+        {
+            mesg = buildMessage(AppServerType.ED, data[1]);
+            RedisManager.deleteCalling(myuid, friendId);
+            sendMessage(mesg, nbcapp);
+        }
+        else
+        {
+            DuduUser frUser = RedisManager.IsOnline(friendId);
+            if (frUser != null)
+            {
+                mesg = buildMessage(AppServerType.ED, data[1]);
+                sendtoOtherNsData(frUser.getIp(), mesg);
+            }
+            
+        }
     }
     
     @Override
@@ -124,13 +146,6 @@ public class FriendChatModel extends BaseMessageServiceImpl
     {
         // TODO Auto-generated method stub
         status = UserStatus.SLIENCE;
-    }
-    
-    @Override
-    public void finishFriendTalk(ChannelHandlerContext ctx, NettyMessage msg)
-    {
-        // TODO Auto-generated method stub
-        
     }
     
     @Override
@@ -211,11 +226,35 @@ public class FriendChatModel extends BaseMessageServiceImpl
     }
 
     @Override
-    public List<DuduUser> getUsers()
+    public List<DuduPosition> getUsers()
     {
         // TODO Auto-generated method stub
         
         return null;
+    }
+
+    @Override
+    public void statusChanged(ChannelHandlerContext ctx, NettyMessage msg)
+    {
+        // TODO Auto-generated method stub
+        String[] data=getUserDataFromMsg(msg);
+        switch (msg.getAppServerType())
+        {
+            case FA:
+                status=UserStatus.ON_LINE_P2P_CHATTING;
+                RedisManager.startChattingWithFriend(getUserIdFromChannel(ctx),data[2]);
+                break;
+            
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public String getServerId()
+    {
+        // TODO Auto-generated method stub
+        return callingUser.getUserid();
     }
     
 }

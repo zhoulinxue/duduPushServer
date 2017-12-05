@@ -1,5 +1,6 @@
 package com.czl.chatClient.bean;
 
+
 public class DuduUser {
 	private String userid;
 	private String username;
@@ -10,8 +11,21 @@ public class DuduUser {
 	private String ip;
 	private int port;
 	private String loginTime;
+	
 
-	public String getToken() {
+	public DuduUser()
+    {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+    public DuduUser(String userid)
+    {
+        super();
+        this.userid = userid;
+    }
+
+    public String getToken() {
 		return token;
 	}
 
@@ -59,9 +73,6 @@ public class DuduUser {
 	public void setDiviceid(String diviceid) {
 		this.diviceid = diviceid;
 	}
-
-	
-
 	@Override
     public String toString()
     {

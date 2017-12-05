@@ -7,6 +7,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.czl.chatClient.bean.NettyMessage;
+import com.czl.chatClient.utils.Log;
 import com.czl.chatServer.Constants;
 import com.czl.chatServer.NSConfig;
 import com.czl.chatServer.ServerType;
@@ -48,8 +49,6 @@ public class NettyServer extends Thread
     
     private NSConfig config;
     
-    private NSClient client;
-    
     // 配置服务端的NIO线程组
     EventLoopGroup bossGroup = new NioEventLoopGroup();
     
@@ -59,9 +58,8 @@ public class NettyServer extends Thread
     
     private int serverport;
     
-    public NettyServer(NSConfig config, NSClient client, ServerType type)
+    public NettyServer(NSConfig config, ServerType type)
     {
-        this.client = client;
         this.config = config;
         this.type = type;
         serverport = getServerport(config, type);
@@ -74,9 +72,11 @@ public class NettyServer extends Thread
         switch (serverType)
         {
             case AppServer:
-                port = Integer.parseInt(config.getAppport());
+                Log.e("app 业务服务（NS 开启）");
+                port = Integer.parseInt(config.getNsport());
                 break;
             case NodeServer:
+                Log.e("分布式 业务开启(NODE开启)");
                 port = Integer.parseInt(config.getListeningport());
                 break;
             case ShortClient:
@@ -121,7 +121,7 @@ public class NettyServer extends Thread
                                     config.getServerHandler(type)));
                         }
                     });
-            
+            Log.e(serverport + "");
             // 绑定端口，同步等待成功
             ChannelFuture f = b.bind(serverport).sync();
             
@@ -180,7 +180,10 @@ public class NettyServer extends Thread
         switch (type)
         {
             case AppServer:
-                client.send(buildLogOutReq());
+                NSClient client = new NSClient(config.getServerip(),
+                        Integer.parseInt(config.getNodeport()),
+                        buildLogOutReq());
+                client.start();
                 break;
             
             default:
@@ -206,7 +209,10 @@ public class NettyServer extends Thread
         switch (type)
         {
             case AppServer:
-                client.send(buildLoginReq());
+                NSClient client = new NSClient(config.getServerip(),
+                        Integer.parseInt(config.getNodeport()),
+                        buildLoginReq());
+                client.start();
                 break;
             
             default:
@@ -236,8 +242,8 @@ public class NettyServer extends Thread
         message.setHeader(NodeServerType.LC.toString());
         try
         {
-            message.setContent((client.userId + Constants.SEPORATE
-                    + Constants.MESSAFE_END_TAG).getBytes("UTF-8"));
+            message.setContent((Constants.SEPORATE+getContent() + Constants.MESSAFE_END_TAG)
+                    .getBytes("UTF-8"));
         }
         catch (UnsupportedEncodingException e)
         {
@@ -249,13 +255,14 @@ public class NettyServer extends Thread
     
     private NettyMessage buildLogOutReq()
     {// LQ
+        
         NettyMessage message = new NettyMessage();
         
         message.setHeader(NodeServerType.LQ.toString());
         try
         {
-            message.setContent((client.userId + Constants.SEPORATE
-                    + Constants.MESSAFE_END_TAG).getBytes("UTF-8"));
+            message.setContent((Constants.SEPORATE+getContent() + Constants.MESSAFE_END_TAG)
+                    .getBytes("UTF-8"));
         }
         catch (UnsupportedEncodingException e)
         {
@@ -263,6 +270,18 @@ public class NettyServer extends Thread
             e.printStackTrace();
         }
         return message;
+    }
+    
+    private String getContent()
+    {
+        // TODO Auto-generated method stub
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(config.getNsip());
+        buffer.append(Constants.IP_PORT_SEPORATE);
+        buffer.append(config.getNsport());
+        buffer.append(Constants.IP_PORT_SEPORATE);
+        buffer.append(config.getListeningport());
+        return buffer.toString();
     }
     
 }

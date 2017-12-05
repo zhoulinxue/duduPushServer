@@ -9,7 +9,7 @@ import com.czl.chatClient.utils.StringUtils;
 public enum AppServerType
 {
     // 登录
-    APP_LOGIN("LD", true),
+    LD("LD", true),
     // 个人呼叫
     FS("FS"),
     // 接受 对讲
@@ -24,12 +24,10 @@ public enum AppServerType
     EG("EG", true),
     // 邀请对讲
     GM("GM"),
-    // 退出对讲
-    EXIT_APP("OU", true),
     // 在线
     ON_LINE("ON"),
     // 单对单 字节流
-    P2P_CHAT_BYTE("SM"),
+    SM("SM"),
     // 群音频数据
     SG("SG"),
     // 群数据 发送结束
@@ -49,7 +47,7 @@ public enum AppServerType
     XZ("XZ"),
     // 在线
     ON("ON"),
-    // 进入频道
+    //离线
     OF("OF"),
     // 系统推送
     IM("IM"),
@@ -84,8 +82,6 @@ public enum AppServerType
     TM("TM"),
     // 异常登陆
     CL("CL", true),
-    // 单对单 字节流
-    SM("SM"),
     // 单对单 字节流
     TF("TF"),
     // 一对一邀请
@@ -127,7 +123,9 @@ public enum AppServerType
     // 跨服 异常登陆
     RELOGIN_OTHERNS_TYPE("CL", true),
     // 语音消息
-    AU("AU");
+    AU("AU"), OK("OK"),
+    // 向其他服务器的用户发邀请
+    INVITE_USER_ON_OTHER_NS("TM");
     
     private AppServerType(String headerString)
     {

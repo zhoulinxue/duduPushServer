@@ -5,12 +5,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.alibaba.fastjson.JSONObject;
 import com.czl.chatClient.AppServerType;
+import com.czl.chatClient.bean.DuduPosition;
 import com.czl.chatClient.bean.DuduUser;
 import com.czl.chatClient.bean.Groupbean;
 import com.czl.chatClient.bean.NettyMessage;
+import com.czl.chatClient.utils.Log;
 import com.czl.chatClient.utils.StringUtils;
 import com.czl.chatServer.ChatType;
+import com.czl.chatServer.Constants;
 import com.czl.chatServer.UserStatus;
 import com.czl.chatServer.server.IChatModelServer;
 import com.czl.chatServer.server.IFriendChatLifeCycle;
@@ -72,23 +76,25 @@ public class ChattingModelManager extends BaseMessageServiceImpl
         // TODO Auto-generated method stub
         IChatModelServer server = null;
         boolean isbusy = userIsBusy(ctx, msg);
-        String[] data = getUserDataFromMsg(msg);
         switch (type)
         {
             case GS:
-                if (isbusy)
+                if (!isbusy)
                 {
+                    String[] gsdata = getUserDataFromMsg(msg);
                     Groupbean groupbean = com.alibaba.fastjson.JSONObject
-                            .parseObject(data[2], Groupbean.class);
+                            .parseObject(gsdata[2], Groupbean.class);
                     server = groupChatModels.get(groupbean.getGroupId());
-                    server.newUserIn(ctx, msg);
+                    if (server == null)
+                    {
+                        server = new GroupChatModel();
+                        server.creatChat(ctx, msg);
+                    }else{
+                        server.newUserIn(ctx, msg);
+                    }
+                 
+                    groupChatModels.put(server.getServerId(), server);
                 }
-                else
-                {
-                    server = new GroupChatModel();
-                    server.creatChat(ctx, msg);
-                }               
-                groupChatModels.put(getUserIdFromChannel(ctx), server);
                 break;
             case FS:
                 if (isbusy)
@@ -98,7 +104,7 @@ public class ChattingModelManager extends BaseMessageServiceImpl
                 else
                 {
                     server = new FriendChatModel();
-                   boolean isSucess= server.creatChat(ctx, msg);
+                    boolean isSucess = server.creatChat(ctx, msg);
                     if (isSucess)
                     {
                         friendChatModels.put(getUserIdFromChannel(ctx), server);
@@ -124,44 +130,69 @@ public class ChattingModelManager extends BaseMessageServiceImpl
     
     @Override
     public void userQuit(ChannelHandlerContext ctx, NettyMessage msg)
-    {
-        // TODO Auto-generated method stub
-        
-    }
-    
-    @Override
-    public void finishGroup(ChannelHandlerContext ctx, NettyMessage msg)
-    {
-        // TODO Auto-generated method stub
-        
-    }
-    
-    @Override
-    public void finishFriendTalk(ChannelHandlerContext ctx, NettyMessage msg)
+            throws UnsupportedEncodingException
     {
         // TODO Auto-generated method stub
         String[] data = getUserDataFromMsg(msg);
         IChatModelServer ser = null;
+        String uid = getUserIdFromChannel(ctx);
         switch (msg.getAppServerType())
         {
             case FR:
                 ser = friendChatModels.get(data[2]);
-                List<DuduUser> list = ser.getUsers();
+                List<DuduPosition> list = ser.getUsers();
                 if (list.contains(new DuduUser(getUserIdFromChannel(ctx))))
                 {
                     friendChatModels.remove(data[2]);
-                    RedisManager.deleteCalling(getUserIdFromChannel(ctx),
-                            data[2]);
+                    RedisManager.deleteCalling(data[2],
+                            getUserIdFromChannel(ctx));
                 }
                 break;
             case FE:
                 ser = friendChatModels.remove(getUserIdFromChannel(ctx));
                 RedisManager.deleteCalling(getUserIdFromChannel(ctx), data[2]);
                 break;
+            case OU:
+                
+                String friendId = RedisManager.getChatwithFriend(uid);
+                String groupIp = RedisManager.getChatInGroup(uid);
+                if (!StringUtils.isEmpty(friendId))
+                {
+                    friendChatModels.get(uid).userQuit(uid);
+                }
+                else if (StringUtils.isEmpty(groupIp))
+                {
+                    groupChatModels.get(uid).userQuit(uid);
+                }
+                break;
+            case EG:
+                String groupId = RedisManager.getChatInGroup(uid);
+                Log.e(groupId + "对讲中的频道" + uid);
+                if (!StringUtils.isEmpty(groupId))
+                {
+                    ser = groupChatModels.get(groupId);
+                    Log.e(JSONObject.toJSONString(ser));
+                    if (ser != null)
+                    {
+                        ser.userQuit(ctx, msg);
+                        List<DuduPosition> dudulist = ser.getUsers();
+                        if (dudulist != null && dudulist.size() == 0)
+                        {
+                            groupChatModels.remove(ser.getServerId());
+                        }
+                    }
+                }
+                break;
             
             default:
                 break;
         }
+    }
+    
+    @Override
+    public void finishGroup(ChannelHandlerContext ctx, NettyMessage msg)
+    {
+        // TODO Auto-generated method stub
         
     }
     
@@ -225,6 +256,7 @@ public class ChattingModelManager extends BaseMessageServiceImpl
     
     @Override
     public boolean userIsBusy(ChannelHandlerContext ctx, NettyMessage msg)
+            throws UnsupportedEncodingException
     {
         // TODO Auto-generated method stub
         String[] gsdata = getUserDataFromMsg(msg);
@@ -246,24 +278,41 @@ public class ChattingModelManager extends BaseMessageServiceImpl
                 }
                 break;
             case GS:
-                
                 Groupbean groupbean = com.alibaba.fastjson.JSONObject
                         .parseObject(gsdata[2], Groupbean.class);
-                if (groupChatModels.get(groupbean.getGroupId()) == null)
+                String ipAndPort = RedisManager
+                        .getGroupIp(groupbean.getGroupId());
+                if (StringUtils.isEmpty(ipAndPort))
                 {
-                    String ipAndPort = RedisManager
-                            .getGroupIp(groupbean.getGroupId());
-                    if (StringUtils.isEmpty(ipAndPort))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
                 else
                 {
-                    return true;
+                    String[] ip = ipAndPort.split(Constants.IP_PORT_SEPORATE);
+                    if (!ipAndPort.equals(ctx.channel()
+                            .localAddress()
+                            .toString()
+                            .substring(1)))
+                    {
+                        NettyMessage gbMeg = buildMessage(AppServerType.GB);
+                        gbMeg.setContent(getContentByte(
+                                ObjectToString(gsdata[1]).append(seporate())
+                                        .append(gsdata[2])
+                                        .append(seporate())
+                                        .append(ip[0])
+                                        .append(seporate())
+                                        .append(ip[1])
+                                        .toString()));
+                        sendMessage(gbMeg, ctx.channel());
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                    
                 }
-                break;
-            
+                
             default:
                 break;
         }
@@ -271,7 +320,36 @@ public class ChattingModelManager extends BaseMessageServiceImpl
     }
     
     @Override
-    public List<DuduUser> getUsers()
+    public List<DuduPosition> getUsers()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    public void statusChanged(ChannelHandlerContext ctx, NettyMessage msg)
+    {
+        // TODO Auto-generated method stub
+        String[] data = getUserDataFromMsg(msg);
+        IChatModelServer server = null;
+        switch (msg.getAppServerType())
+        {
+            case FS:
+                server = friendChatModels.get(data[2]);
+                if (server != null)
+                {
+                    server.statusChanged(ctx, msg);
+                    RedisManager.deleteCalling(data[2],
+                            getUserIdFromChannel(ctx));
+                }
+                break;
+            
+            default:
+                break;
+        }
+    }
+    
+    @Override
+    public String getServerId()
     {
         // TODO Auto-generated method stub
         return null;

@@ -25,7 +25,7 @@ public class UserServerImpl extends BaseMessageServiceImpl implements UserServer
 	public NettyMessage registerUser(JsonString table, Channel channel, SendMessageLisenter lisenter)
 			throws UnsupportedEncodingException {
 		// TODO Auto-generated method stub
-		NettyMessage message = buildMessage(AppServerType.APP_LOGIN, table);
+		NettyMessage message = buildMessage(AppServerType.OU, table);
 		sendMessage(message, channel);
 		return message;
 	}

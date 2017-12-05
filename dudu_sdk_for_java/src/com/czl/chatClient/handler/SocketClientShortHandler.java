@@ -65,7 +65,7 @@ public class SocketClientShortHandler extends ChannelInboundHandlerAdapter {
 		NettyMessage message = new NettyMessage();
 
 		message.setHeader0((byte) 65);// A
-		message.setHeader1((byte) 67);
+		message.setHeader1((byte) 67);// C
 		try {
 			message.setContent((content).getBytes("UTF-8"));
 		} catch (UnsupportedEncodingException e) {

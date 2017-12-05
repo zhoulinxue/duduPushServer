@@ -2,24 +2,14 @@ package com.czl.chatServer.netty.decoder;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-
 import com.czl.chatClient.AppServerType;
 import com.czl.chatClient.bean.NettyMessage;
-import com.czl.chatServer.netty.core.NodeServerType;
+import com.czl.chatClient.utils.Log;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-/**
- * 
- * 项目名称：
- * 功能模块名称：
- * 功能描述：前端指令 解码类
- * @author "zhouxue"
- * @version 1.0 2017年11月15日
- * Copyright: Copyright (c) zhouxue Co.,Ltd. 2017
- * Company:"zhouxue" org
- */
+
 public class NsAppMessageDecoder extends LengthFieldBasedFrameDecoder {
 
 	public NsAppMessageDecoder(int maxFrameLength, int lengthFieldOffset, int lengthFieldLength) throws IOException {
@@ -28,17 +18,30 @@ public class NsAppMessageDecoder extends LengthFieldBasedFrameDecoder {
 	}
 
 	@Override
-	protected Object decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
-
-		if (in.readableBytes() < 2) {
+	protected Object decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception {			
+		if (in.readableBytes() < 1) {
 			return null;
 		}
 		in.markReaderIndex();//
 		NettyMessage message = new NettyMessage();
+		int length = in.readByte();
+		if (in.readableBytes() < length) {
+			in.resetReaderIndex();
+			return null;
+		}
+		byte[] idbytes = new byte[length];
+		in.readBytes(idbytes);
+		message.setMessageId(idbytes);
+		if (in.readableBytes() < 2) {
+			in.resetReaderIndex();
+			return null;
+		}
+		
 		message.setHeader0(in.readByte());
 		message.setHeader1(in.readByte());
 	
-		if (message.getHeader0() == 83 && message.getHeader1() == 77) {
+		AppServerType type=AppServerType.ofCommand(message.getHeader());
+		 if (AppServerType.SG==type||AppServerType.SM==type||AppServerType.AU==type) {
 			if (in.readableBytes() < 4) {
 				in.resetReaderIndex();
 				return null;
@@ -53,71 +56,26 @@ public class NsAppMessageDecoder extends LengthFieldBasedFrameDecoder {
 					return null;
 				}
 				if (in.readableBytes() < message.getCtxLength()) {
-					System.out.println("内容大小——大于可读字节"+message.getCtxLength()+"@@"+in.readableBytes());
+					System.out.println("内容大小——大于可读字节" + message.getCtxLength() + "@@" + in.readableBytes());
 					in.resetReaderIndex();
 					return null;
 				} else {
-					System.out.println("小于可读字节"+message.getCtxLength()+"@@"+in.readableBytes());
+					System.out.println("小于可读字节" + message.getCtxLength() + "@@" + in.readableBytes());
 					byte[] req = new byte[message.getCtxLength()];
 					in.readBytes(req);
 					message.setContent(req);
-					
-					if(in.readableBytes()<2){
+					if (in.readableBytes() < 2) {
 						in.discardReadBytes();
 						return message;
 					}
-					// 前端发语音流 没有uid 所以没有“\n” 此处不用跳字节
-//					byte[] idbytes=new byte[6];
-//					in.readBytes(idbytes);
-//					message.setMessageId(idbytes);
-					
-					in.discardReadBytes();					
-					return message;
-				}
-			}
-		} else if (message.getHeader0() == 83 && message.getHeader1() == 71) {
-			if (in.readableBytes() < 4) {
-				in.resetReaderIndex();
-				return null;
-			} else {
-				message.setCtxLength(in.readInt());
-				if (message.getCtxLength() > 1024 * 1024) {
-					in.resetReaderIndex();
-					if (in.readableBytes() > 1024 * 1024) {
-						in.skipBytes(1024 * 1020);
-						in.discardReadBytes();
-					}
-					return null;
-				}
-				if (in.readableBytes() < message.getCtxLength()) {
-					System.out.println("内容大小——大于可读字节"+message.getCtxLength()+"@@"+in.readableBytes());
-					in.resetReaderIndex();
-					return null;
-				} else {
-					System.out.println("小于可读字节"+message.getCtxLength()+"@@"+in.readableBytes());
-					byte[] req = new byte[message.getCtxLength()];
-					in.readBytes(req);
-					message.setContent(req);					
-					if(in.readableBytes()<2){
-						in.discardReadBytes();
-						return message;
-					}
-					// 前端发语音流 没有uid 所以没有“\n” 此处不用跳字节
-//					byte[] idbytes=new byte[6];
-//					in.readBytes(idbytes);
-//					message.setMessageId(idbytes);
 					in.discardReadBytes();
-				
+					   Log.printeNettymsg(message, "收到消息");
 					return message;
-
-					///////////////////////
 				}
 			}
 
 		} else {
-			
-			if (AppServerType.isCommand(message.getHeader())||NodeServerType.isCommand(message.getHeader())) {
-				
+			if (AppServerType.isCommand(message.getHeader())) {
 				if (in.readableBytes() < 1) {
 					in.resetReaderIndex();
 					return null;
@@ -131,25 +89,16 @@ public class NsAppMessageDecoder extends LengthFieldBasedFrameDecoder {
 					}
 					return null;
 				} else {
-					//content 中包含"|"
+					// content 中包含"|"
 					byte[] req = new byte[nn + 2];
 					in.resetReaderIndex();
+					in.skipBytes(length + 1);
 					in.readBytes(req);
 					message.setContent(req);
-					
-					if(in.readableBytes()<2){
-						in.skipBytes(1);
-						in.discardReadBytes();
-						return message;
-					}	
 					// 跳过"\n"符号
 					in.skipBytes(1);
-//					byte[] idbytes=new byte[6];
-//					in.readBytes(idbytes);
-//					message.setMessageId(idbytes);		
-//					System.out.println("header=:"+message.getHeader()+"   msgId=:"+message.getStringMessageId());
-					
 					in.discardReadBytes();
+					 Log.printeNettymsg(message, "收到消息");
 					return message;
 				}
 			} else {

@@ -1,12 +1,9 @@
 package com.czl.chatServer.bean;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
 
 import com.alibaba.fastjson.JSONObject;
-import com.czl.chatClient.bean.NettyMessage;
-import com.czl.chatServer.Constants;
 
 /**
  * Created by zhouxue on 2016/10/14.

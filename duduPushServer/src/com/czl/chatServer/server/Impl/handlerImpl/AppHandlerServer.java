@@ -1,6 +1,8 @@
 package com.czl.chatServer.server.Impl.handlerImpl;
 
+import com.czl.chatClient.AppServerType;
 import com.czl.chatClient.bean.NettyMessage;
+import com.czl.chatClient.utils.Log;
 import com.czl.chatServer.server.IConnectLifeCycle;
 import com.czl.chatServer.server.IFriendChatLifeCycle;
 import com.czl.chatServer.server.IHandlerServer;
@@ -12,7 +14,6 @@ import com.czl.chatServer.server.Impl.FriendChatServerImpl;
 import com.czl.chatServer.server.Impl.NaviServerImpl;
 import com.czl.chatServer.server.Impl.NettyServerImpl;
 import com.czl.chatServer.server.Impl.PushMessageImpl;
-
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -28,7 +29,8 @@ import io.netty.util.ReferenceCountUtil;
  * Copyright: Copyright (c) zhouxue Co.,Ltd. 2017
  * Company:"zhouxue" org
  */
-public class AppHandlerServer extends BaseMessageServiceImpl implements IHandlerServer 
+public class AppHandlerServer extends BaseMessageServiceImpl
+        implements IHandlerServer
 {
     //连接业务
     private IConnectLifeCycle connectServer = new AppConnectServerImpl();
@@ -45,6 +47,7 @@ public class AppHandlerServer extends BaseMessageServiceImpl implements IHandler
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception
     {
+        Log.e("channelActive");
         //有app 连接....
         connectServer.appConnect(ctx);
     }
@@ -53,40 +56,43 @@ public class AppHandlerServer extends BaseMessageServiceImpl implements IHandler
     public void channelRead(ChannelHandlerContext ctx, NettyMessage msg)
             throws Exception
     {
+     
+        AppServerType type=msg.getAppServerType();
+        Log.e("channelRead"+type);
         // 接收到APP消息
         switch (msg.getAppServerType())
         {
-            case APP_LOGIN:
+            case LD:
                 connectServer.appLogin(ctx, msg);
                 break;
-            case APP_EXIT:
+            case OU:
+                ChattingModelManager.getInstance().userQuit(ctx, msg);
                 //redis 注销 用户信息
                 connectServer.loginOut(ctx, msg);
-                //根据 用户资料退出
-                ChattingModelManager.getInstance().userQuit(getUserIdFromChannel(ctx));
                 break;
             case FS:
                 ChattingModelManager.getInstance().creatChat(ctx, msg);
                 break;
             case FA:
+                ChattingModelManager.getInstance().statusChanged(ctx, msg);
                 friendChatServer.agreeCall(ctx, msg);
                 break;
             case FR:
-                ChattingModelManager.getInstance().finishFriendTalk(ctx, msg);
+                ChattingModelManager.getInstance().userQuit(ctx, msg);
                 friendChatServer.reJectCall(ctx, msg);
                 break;
             case FE:
-                ChattingModelManager.getInstance().finishFriendTalk(ctx, msg);
+                ChattingModelManager.getInstance().userQuit(ctx, msg);
                 friendChatServer.cancelCall(ctx, msg);
                 break;
             case ED:
-                ChattingModelManager.getInstance().finishFriendTalk(ctx, msg);
+                ChattingModelManager.getInstance().userQuit(ctx, msg);
                 friendChatServer.endFriendChat(ctx, msg);
                 break;
             case ON_LINE:
                 nettyServer.userIsOnLine(ctx, msg);
                 break;
-            case P2P_CHAT_BYTE:
+            case SM:
             case SG:
                 ChattingModelManager.getInstance().chatByte(ctx, msg);
                 break;
@@ -97,7 +103,7 @@ public class AppHandlerServer extends BaseMessageServiceImpl implements IHandler
                 pushMsg.pushMsgCompelte(ctx, msg);
                 break;
             case GS:
-                ChattingModelManager.getInstance().chatByte(ctx, msg);
+                ChattingModelManager.getInstance().creatChat(ctx, msg);
                 break;
             case EG:
                 ChattingModelManager.getInstance().userQuit(ctx, msg);
@@ -117,7 +123,7 @@ public class AppHandlerServer extends BaseMessageServiceImpl implements IHandler
                 ChattingModelManager.getInstance().locationChange(ctx, msg);
                 break;
             case LT:
-                connectServer.testConnect(ctx,msg);
+                connectServer.testConnect(ctx, msg);
                 break;
             case RS:
                 pushMsg.pushRSMessage(ctx.channel(), msg);
@@ -147,13 +153,14 @@ public class AppHandlerServer extends BaseMessageServiceImpl implements IHandler
             throws Exception
     {
         // 有异常
-        
+        Log.e("exceptionCaught");
     }
     
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt)
             throws Exception
     {
+        Log.e("userEventTriggered");
         // 连接 事件...触发
         try
         {
@@ -178,6 +185,7 @@ public class AppHandlerServer extends BaseMessageServiceImpl implements IHandler
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception
     {
+        Log.e("channelInactive");
         // app断链
         connectServer.appOffline(ctx);
     }

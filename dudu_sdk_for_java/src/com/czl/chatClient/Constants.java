@@ -42,6 +42,6 @@ public class Constants {
 	public static String OUT_OF_CHATTING = "NoChatting.";
 	public static String CHATTING_CHANNEL = "chatting_channel";
 	public static String THIS_NS_ONLIN = "on_line_in";
-	public static String MS_IP = "120.76.193.203";
-	// public static String MS_IP= "192.168.13.31";
+	public static String MS_IP = "119.23.16.200";
+//	 public static String MS_IP= "192.168.13.31";
 }

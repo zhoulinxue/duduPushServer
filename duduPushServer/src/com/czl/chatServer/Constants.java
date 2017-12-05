@@ -55,4 +55,6 @@ public class Constants {
 	    // 
 	public static String ZKADDRESS="192.168.13.31:2181";
     public static String NS_IP_PORT= "ns.";
+    public static String CHAT_WITH_FRIEND="ct.";
+    public static String GROUP_CHATTING="ctg.";
 }

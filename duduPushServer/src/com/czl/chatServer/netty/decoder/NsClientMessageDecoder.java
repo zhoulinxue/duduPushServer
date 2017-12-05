@@ -32,6 +32,18 @@ public class NsClientMessageDecoder extends LengthFieldBasedFrameDecoder {
 		}
 		in.markReaderIndex();//
 		NettyMessage message = new NettyMessage();
+        int length = in.readByte();
+        if (in.readableBytes() < length) {
+            in.resetReaderIndex();
+            return null;
+        }
+        byte[] idbytes = new byte[length];
+        in.readBytes(idbytes);
+        message.setMessageId(idbytes);
+        if (in.readableBytes() < 2) {
+            in.resetReaderIndex();
+            return null;
+        }
 		message.setHeader0(in.readByte());
 		message.setHeader1(in.readByte());
 	

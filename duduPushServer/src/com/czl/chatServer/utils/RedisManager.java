@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.czl.chatClient.bean.DuduUser;
 import com.czl.chatClient.utils.DateUtils;
+import com.czl.chatClient.utils.Log;
 import com.czl.chatClient.utils.StringUtils;
 import com.czl.chatServer.Constants;
 
@@ -21,7 +22,26 @@ public class RedisManager
     
     public static Channel getChannelByUid(String uid)
     {
+        Log.e("获取连接" + uid);
         return channelMap.get(uid);
+    }
+    
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：缓存连接
+      * @author zhouxue
+      * @param userid
+      * @param channel [参数说明]
+      * @return void [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public static void putChannel(String userid, Channel channel)
+    {
+        // TODO Auto-generated method stub
+        Log.e("登录成功" + userid);
+        channelMap.put(userid, channel);
     }
     
     /**
@@ -143,7 +163,7 @@ public class RedisManager
                         .localAddress()
                         .toString()
                         .substring(1));
-        
+     JedisUtils.set(Constants.USER+user.getUserid(), JSONObject.toJSONString(user),0);
     }
     
     /**
@@ -224,23 +244,6 @@ public class RedisManager
     /**
      * 
       * 功能简述：
-      * 功能详细描述：缓存连接
-      * @author zhouxue
-      * @param userid
-      * @param channel [参数说明]
-      * @return void [返回类型说明]
-      * @exception throws [异常类型] [异常说明]
-      * @see [类、类#方法、类#成员]
-     */
-    public static void putChannel(String userid, Channel channel)
-    {
-        // TODO Auto-generated method stub
-        channelMap.put(userid, channel);
-    }
-    
-    /**
-     * 
-      * 功能简述：
       * 功能详细描述：移除连接
       * @author zhouxue
       * @param userid [参数说明]
@@ -315,7 +318,7 @@ public class RedisManager
         // TODO Auto-generated method stub
         String callerid = getCallingMsg(userid);
         JedisUtils.del(Constants.CALL_USER + userid);
-        if (myId.equals(callerid) || myId == null)
+        if (myId == null || myId.equals(callerid))
         {
             JedisUtils.del(Constants.CALLED + callerid);
         }
@@ -405,11 +408,93 @@ public class RedisManager
             JedisUtils.returnResource(jedis);
         }
     }
-
+    
     public static String getChatwithFriend(String userId)
     {
         // TODO Auto-generated method stub
         return null;
+    }
+    
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：开始对讲
+      * @author zhouxue
+      * @param userIdFromChannel
+      * @param string [参数说明]
+      * @return void [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public static boolean startChattingWithFriend(String selfid,
+            String friendid)
+    {
+        try
+        {
+            JedisUtils.set(Constants.CHAT_WITH_FRIEND + selfid, friendid, 0);
+            JedisUtils.set(Constants.CHAT_WITH_FRIEND + friendid, selfid, 0);
+        }
+        catch (Exception e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return true;
+    }
+    
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：正在对讲的频道
+      * @author zhouxue
+      * @param uid
+      * @return [参数说明]
+      * @return String [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public static String getChatInGroup(String uid)
+    {
+        // TODO Auto-generated method stub
+        String key = Constants.GROUP_CHATTING + uid;
+        Log.e("获取的键值对：" + key);
+        return JedisUtils.get(key);
+    }
+    
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：开始在频道内对讲
+      * @author zhouxue
+      * @param uid
+      * @param groupID
+      * @return [参数说明]
+      * @return String [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public static String startChatInGroup(String uid, String groupID)
+    {
+        // TODO Auto-generated method stub
+        Log.e(uid+"!对讲中"+groupID);
+        JedisUtils.setSetAdd(Constants.GROUP_CHATTING + groupID, uid);
+        return JedisUtils.set(Constants.GROUP_CHATTING + uid, groupID, 0);
+    }
+    
+    public static void deleteGroupIp(String groupid)
+    {
+        // TODO Auto-generated method stub
+        JedisUtils.del(Constants.GROUP_IP + groupid);
+        JedisUtils.del(Constants.GROUP_CHATTING + groupid);
+    }
+    
+    public static void deletegroupChatMsg(String uid)
+    {
+        // TODO Auto-generated method stub
+        String groupid = getChatInGroup(uid);
+        JedisUtils.del(Constants.GROUP_CHATTING + uid);
+        JedisUtils.setDel(Constants.GROUP_CHATTING + groupid, uid);
+        deleteGroupIp(groupid);
     }
     
 }

@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatClient.utils.Log;
-
+import com.czl.chatClient.utils.StringUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
@@ -29,26 +29,34 @@ public final class NettyMessageServerEncoder extends MessageToByteEncoder<NettyM
 	@Override
 	protected void encode(ChannelHandlerContext ctx, NettyMessage msg, ByteBuf sendBuf) throws Exception {
 
-		try {
-			sendBuf.writeByte(msg.getHeader0());
-			sendBuf.writeByte(msg.getHeader1());
-			sendBuf.writeByte(124);
-			
-			if (msg.getHeader0() == 83 &&( msg.getHeader1() == 77||msg.getHeader1() == 71)) {
-				sendBuf.writeInt(msg.getCtxLength());
-				sendBuf.writeBytes(msg.getContent());
-			}  else {
-				sendBuf.writeBytes(msg.getContent());
-			}
-			if(msg.getFromUerId()!=null && msg.getFromUerId().length!=0){
-				sendBuf.writeBytes(msg.getFromUerId());
-			}			
-			Log.printeNettymsg(msg, "发送的消息");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}finally{
-		  ReferenceCountUtil.release(msg);
-		}
+        try {
+            byte[] msgId = null;
+            if (msg.getMessageId() != null) {
+                msgId = msg.getMessageId();
+            } else {
+                msgId = StringUtils.getRandomMsgId();
+                msg.setMessageId(msgId);
+            }
+            sendBuf.writeByte(msgId.length);
+            sendBuf.writeBytes(msgId);
+            sendBuf.writeByte(msg.getHeader0());
+            sendBuf.writeByte(msg.getHeader1());
+
+            if (msg.getHeader0() == 83 && (msg.getHeader1() == 77 || msg.getHeader1() == 71)) {
+                sendBuf.writeInt(msg.getCtxLength());
+                sendBuf.writeBytes(msg.getContent());
+            } else {
+                sendBuf.writeBytes(msg.getContent());
+            }
+            if (msg.getFromUerId() != null && msg.getFromUerId().length != 0) {
+                sendBuf.writeBytes(msg.getFromUerId());
+            }
+            Log.printeNettymsg(msg, "发送的消息");
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } finally {
+            ReferenceCountUtil.release(msg);
+        }
 	}
 }

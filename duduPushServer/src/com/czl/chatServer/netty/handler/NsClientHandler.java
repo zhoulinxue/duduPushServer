@@ -25,16 +25,10 @@ import io.netty.util.ReferenceCountUtil;
  */
 public class NsClientHandler extends ChannelInboundHandlerAdapter
 {
-    NSClient nc = null;
     
     private NettyMessage msg;
-    
-    public NsClientHandler(NSClient nettyClient)
-    {
-        nc = nettyClient;
-    }
-    
-    public NsClientHandler(NettyMessage msg)
+
+        public NsClientHandler(NettyMessage msg)
     {
         super();
         this.msg = msg;
@@ -49,9 +43,6 @@ public class NsClientHandler extends ChannelInboundHandlerAdapter
     public void channelActive(ChannelHandlerContext ctx) throws Exception
     {
         super.channelActive(ctx);
-        //	ctx.writeAndFlush(buildLoginReq());// LC|ip:port
-        nc.channel = ctx.pipeline().channel();
-        // Demo.ctx=ctx;
         if (msg != null)
         {
             ctx.writeAndFlush(msg);

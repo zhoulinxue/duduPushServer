@@ -30,8 +30,7 @@ import redis.clients.jedis.exceptions.JedisException;
 public class JedisUtils {
 
 	private static Logger logger = LoggerFactory.getLogger(JedisUtils.class);
-	private static String IP = NSConfig.creatDefault().getRedisip();// "192.168.1.170";
-	private static int Port = 6397;
+	private static NSConfig nsConfig=NSConfig.creatDefault();
 	private static JedisPool jedisPool = getPool();
 
 	// public static final String KEY_PREFIX =
@@ -49,16 +48,19 @@ public class JedisUtils {
 			config.setMaxWaitMillis(1000);
 			// 在borrow一个jedis实例时，是否提前进行validate操作；如果为true，则得到的jedis实例均是可用的；
 			config.setTestOnBorrow(true);
-			String newport = NSConfig.creatDefault().getRedisport();
+			String newport = nsConfig.getRedisport();
+			String IP=nsConfig.getRedisip();
+			int Port=6379;
+			String psw=nsConfig.getRedispwd();
 			if (!StringUtils.isEmpty(newport)) {
 				Port = Integer.parseInt(newport);
 			}
 			// jedisPool = new JedisPool(config, IP, Port);
 			System.out.println("redis:  " + IP + ":" + Port);
-			if (NSConfig.creatDefault().getRedispwd().equals(""))
+			if ("".equals(psw))
 				jedisPool = new JedisPool(config, IP, Port);
 			else
-				jedisPool = new JedisPool(config, IP, Port, 3000, NSConfig.creatDefault().getRedispwd());
+				jedisPool = new JedisPool(config, IP, Port, 3000, psw);
 		}
 		return jedisPool;
 	}
@@ -77,7 +79,7 @@ public class JedisUtils {
 			jedis = getResource();
 			if (jedis.exists(key)) {
 				value = jedis.get(key);
-				value = StringUtils.isEmpty(value) && !"nil".equalsIgnoreCase(value) ? value : null;
+				value = !StringUtils.isEmpty(value) && !"nil".equalsIgnoreCase(value) ? value : null;
 				logger.debug("get {} = {}", key, value);
 			}
 		} catch (Exception e) {
@@ -924,8 +926,7 @@ public class JedisUtils {
 	 * @param jedis
 	 * @param isBroken
 	 */
-	@SuppressWarnings("deprecation")
-    public static void returnBrokenResource(Jedis jedis) {
+	public static void returnBrokenResource(Jedis jedis) {
 		if (jedis != null) {
 			jedisPool.returnBrokenResource(jedis);
 		}
@@ -937,8 +938,7 @@ public class JedisUtils {
 	 * @param jedis
 	 * @param isBroken
 	 */
-	@SuppressWarnings("deprecation")
-    public static void returnResource(Jedis jedis) {
+	public static void returnResource(Jedis jedis) {
 		if (jedis != null) {
 			jedisPool.returnResource(jedis);
 		}

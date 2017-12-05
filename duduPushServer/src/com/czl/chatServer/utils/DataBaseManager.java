@@ -53,7 +53,7 @@ public class DataBaseManager
       * @see [类、类#方法、类#成员]
      */
     public static List<ChannelMember> getMyChannelMember(String channel, String userid) {
-        List<ChannelMember> members = new ArrayList<ChannelMember>();
+//        List<ChannelMember> members = new ArrayList<ChannelMember>();
         String sql = "SELECT A.channelid,A.createtime,A.memberid,A.nameinchannel,A.rank,B.logourl FROM channelmember A INNER JOIN userinfo B ON A.memberid = B.userid WHERE A.channelid = ? ORDER BY A.createtime";
         List<Object> params = new ArrayList<Object>();
         params.add(channel);
@@ -61,7 +61,7 @@ public class DataBaseManager
         JdbcUtil jdbcUtil = new JdbcUtil();
         jdbcUtil.getConnection(DBName.userdb);
         try {
-            return members = jdbcUtil.findMoreRefResult(sql, params, ChannelMember.class);
+            return  jdbcUtil.findMoreRefResult(sql, params, ChannelMember.class);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -110,7 +110,17 @@ public class DataBaseManager
 
     }
 
-
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：从数据库 获取 频道信息
+      * @author zhouxue
+      * @param channelid
+      * @return [参数说明]
+      * @return Groupbean [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
     public static Groupbean getChannelMsgFromDb(String channelid) {
         String sql = "SELECT channelid,channelname,membersum,logourl FROM userdb.channelinfo WHERE channelid = ?";
         List<Object> params = new ArrayList<Object>();
@@ -124,6 +134,35 @@ public class DataBaseManager
         } catch (Exception e) {
             Log.error("getChannelNumberNum,channelid=" + channelid + "|" + e.getMessage());
             return null;
+        } finally {
+            jdbcUtil.releaseConn();
+        }
+    }
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述： 从数据库获取频道内 人员总数
+      * @author zhouxue
+      * @param channelid
+      * @return [参数说明]
+      * @return String [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public static String getChannelNumFromDb(String channelid) {
+
+        String sql = "SELECT count(1) FROM userdb.channelmember WHERE channelid = ?";
+        List<Object> params = new ArrayList<Object>();
+        params.add(channelid);
+
+        JdbcUtil jdbcUtil = new JdbcUtil();
+        jdbcUtil.getConnection(DBName.userdb);
+        try {
+            Object obj = jdbcUtil.findSingleValue(sql, params);
+            return obj == null ? "" : obj.toString();
+        } catch (SQLException e) {
+            Log.error("getChannelNumberNum,channelid=" + channelid + "|" + e.getMessage());
+            return "";
         } finally {
             jdbcUtil.releaseConn();
         }

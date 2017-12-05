@@ -1,48 +1,58 @@
 package com.czl.chatClient.bean;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by zhouxue on 2016/7/27.
- * Company czl_zva
+ * Created by zhouxue on 2016/7/27. Company czl_zva
  */
-public class ChannalActiveusers implements Serializable{
-    /**
+public class ChannalActiveusers implements Serializable {
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private List<DuduPosition> activeUsers;
-    private String channelNum;
-    private String channelId;
-    private String channelName;
+	private String channelNum;
+	private String channelId;
+	private String channelName;
 
-    public ChannalActiveusers() {
-    }
+	public ChannalActiveusers() {
+	}
 
-    public String getChannelNum() {
-        return channelNum;
-    }
+	public String getChannelNum() {
+		return channelNum;
+	}
 
-    public void setChannelNum(String channelNum) {
-        this.channelNum = channelNum;
-    }
+	public void setChannelNum(String channelNum) {
+		this.channelNum = channelNum;
+	}
 
-    public List<DuduPosition> getActiveUsers() {
-        return activeUsers;
-    }
+	public List<DuduPosition> getActiveUsers() {
+		return activeUsers;
+	}
 
-    public void setActiveUsers(List<DuduPosition> activeUsers) {
-        this.activeUsers = activeUsers;
-    }
+	public void setActiveUsers(List<DuduPosition> activeUsers) {
 
-    public String getChannelId() {
-        return channelId;
-    }
+		this.activeUsers = dealUser(activeUsers);
+	}
 
-    public void setChannelId(String channelId) {
-        this.channelId = channelId;
-    }
+	private List<DuduPosition> dealUser(List<DuduPosition> activeUsers) {
+		// TODO Auto-generated method stub\
+		List<DuduPosition> listUser = new ArrayList<>();
+		for (DuduPosition user : activeUsers) {
+			listUser.add(user);
+		}
+		return listUser;
+	}
+
+	public String getChannelId() {
+		return channelId;
+	}
+
+	public void setChannelId(String channelId) {
+		this.channelId = channelId;
+	}
 
 	public String getChannelName() {
 		return channelName;
@@ -51,5 +61,5 @@ public class ChannalActiveusers implements Serializable{
 	public void setChannelName(String channelName) {
 		this.channelName = channelName;
 	}
-    
+	
 }
