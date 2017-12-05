@@ -10,6 +10,7 @@ import com.czl.chatClient.bean.DuduUser;
 import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatClient.utils.StringUtils;
 import com.czl.chatServer.Constants;
+import com.czl.chatServer.netty.NSClient;
 import com.czl.chatServer.netty.decoder.NsClientMessageDecoder;
 import com.czl.chatServer.netty.encode.NettyMessageServerEncoder;
 import com.czl.chatServer.netty.handler.NsClientHandler;
@@ -165,8 +166,8 @@ public class BaseMessageServiceImpl implements BaseMessageServer
     }
     
     @Override
-    public NettyMessage sendEX(String content)
-            throws  UnsupportedEncodingException
+    public NettyMessage buildEx(String content)
+            throws UnsupportedEncodingException
     {
         // TODO Auto-generated method stub
         NettyMessage arg0 = buildMessage(AppServerType.EX_TYPE);
@@ -261,6 +262,14 @@ public class BaseMessageServiceImpl implements BaseMessageServer
         
     }
     
+    public void sendtoOtherNsData(String ip, final NettyMessage mymsg,
+            NettyMessage respone)
+    {
+        NSClient client = new NSClient(ip,
+                Integer.parseInt(RedisManager.getNodeport(ip)), mymsg,true);
+        client.start();
+    }
+    
     @Override
     public String[] paserNettyMsg(NettyMessage message)
             throws UnsupportedEncodingException
@@ -313,28 +322,38 @@ public class BaseMessageServiceImpl implements BaseMessageServer
         message.setContent(getContentByte(content));
         return message;
     }
-
+    
     @Override
     public String getUserIdFromChannel(ChannelHandlerContext ctx)
     {
         // TODO Auto-generated method stub
+        return getUserIdFromChannel(ctx.channel());
+    }
+    
+    public String getUserIdFromChannel(Channel ctx)
+    {
+        // TODO Auto-generated method stub
         @SuppressWarnings("deprecation")
         String aa = ctx.attr(Constants.KEY_USER_ID).get();
-        if (aa != null) {
-//          System.out.println("用户id="+aa);
+        if (aa != null)
+        {
+            //          System.out.println("用户id="+aa);
             return aa;
-        } else {
+        }
+        else
+        {
             return null;
         }
     }
-
+    
     @Override
     public String[] getUserDataFromMsg(NettyMessage msg)
     {
         // TODO Auto-generated method stub
         try
         {
-            return (new String(msg.getContent(), Constants.CONTENT_CHAR_SET)).split("\\|");
+            return (new String(msg.getContent(), Constants.CONTENT_CHAR_SET))
+                    .split("\\|");
         }
         catch (UnsupportedEncodingException e)
         {
@@ -344,12 +363,17 @@ public class BaseMessageServiceImpl implements BaseMessageServer
         return null;
     }
     
-    public void sendIsOnLine(Channel ctx, DuduUser user, String uid) throws UnsupportedEncodingException {
+    public void sendIsOnLine(Channel ctx, DuduUser user, String uid)
+            throws UnsupportedEncodingException
+    {
         // TODO Auto-generated method stub
-        if (user == null) {
+        if (user == null)
+        {
             NettyMessage message = buildMessage(AppServerType.OF, uid);
             sendMessage(message, ctx);
-        } else {
+        }
+        else
+        {
             NettyMessage message = buildMessage(AppServerType.ON_LINE, uid);
             sendMessage(message, ctx);
         }

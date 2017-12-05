@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.czl.chatClient.AppServerType;
 import com.czl.chatClient.bean.DuduUser;
 import com.czl.chatClient.bean.NettyMessage;
+import com.czl.chatClient.utils.StringUtils;
 import com.czl.chatServer.Constants;
 import com.czl.chatServer.server.IFriendChatLifeCycle;
 import com.czl.chatServer.utils.DataBaseManager;
@@ -54,6 +55,9 @@ public class FriendChatServerImpl extends BaseMessageServiceImpl
         String[] data = getUserDataFromMsg(msg);
         String myuid = getUserIdFromChannel(ctx);
         String friendId = RedisManager.getChatwithFriend(myuid);
+        if(StringUtils.isEmpty(friendId)){
+            return;
+        }
         Channel nbcapp = RedisManager.getChannelByUid(friendId);
         NettyMessage mesg = null;
         if (nbcapp != null)
@@ -62,16 +66,16 @@ public class FriendChatServerImpl extends BaseMessageServiceImpl
             RedisManager.deleteCalling(myuid, friendId);
             sendMessage(mesg, nbcapp);
         }
-        else
-        {
-            DuduUser frUser = RedisManager.IsOnline(friendId);
-            if (frUser != null)
-            {
-                mesg = buildMessage(AppServerType.ED, data[1]);
-                sendtoOtherNsData(frUser.getIp(), mesg);
-            }
-            
-        }
+//        else
+//        {
+//            DuduUser frUser = RedisManager.IsOnline(friendId);
+//            if (frUser != null)
+//            {
+//                mesg = buildMessage(AppServerType.ED, data[1]);
+//                sendtoOtherNsData(frUser.getIp(), mesg);
+//            }
+//            
+//        }
         
     }
     
@@ -125,7 +129,7 @@ public class FriendChatServerImpl extends BaseMessageServiceImpl
             // 本服务器
             NettyMessage frmsg = buildMessage(AppServerType.FR);
             frmsg.setContent(getContentByte(data[1] + "|" + data[2]));
-            chanel.writeAndFlush(frmsg);
+            sendMessage(frmsg, chanel);
         }
         else
         {

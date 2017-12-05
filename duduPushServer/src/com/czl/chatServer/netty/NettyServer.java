@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.czl.chatClient.AppServerType;
 import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatClient.utils.Log;
 import com.czl.chatServer.Constants;
@@ -58,6 +59,8 @@ public class NettyServer extends Thread
     
     private int serverport;
     
+    private NSClient client;
+    
     public NettyServer(NSConfig config, ServerType type)
     {
         this.config = config;
@@ -82,7 +85,14 @@ public class NettyServer extends Thread
             case ShortClient:
                 port = Integer.parseInt(config.getNsport());
                 break;
-            
+            case MS_NODE_SERVER:
+                Log.e("分布式 业务开启(MS_NODE开启)");
+                port = Integer.parseInt(config.getNodeport());
+                break;
+            case MS_MANAGER_SERVER:
+                Log.e("分布式 业务开启(MS_APP开启)");
+                port = Integer.parseInt(config.getAppport());
+                break;
             default:
                 break;
         }
@@ -141,6 +151,7 @@ public class NettyServer extends Thread
         }
         finally
         {
+            dosomthingFiled(type);
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
             // 所有资源释放完成之后，清空资源，再次发起重连操作
@@ -177,13 +188,14 @@ public class NettyServer extends Thread
     private void dosomthingFiled(ServerType type)
     {
         // TODO Auto-generated method stub
+        Log.e("挂断"+(client==null));
         switch (type)
         {
-            case AppServer:
-                NSClient client = new NSClient(config.getServerip(),
-                        Integer.parseInt(config.getNodeport()),
-                        buildLogOutReq());
-                client.start();
+            case AppServer:             
+                if (client != null)
+                {
+                    client.send(buildLogOutReq());
+                }
                 break;
             
             default:
@@ -206,12 +218,13 @@ public class NettyServer extends Thread
     private void dosomthingonSuccess(ServerType type)
     {
         // TODO Auto-generated method stub
+        Log.e("服务启动成功_绑定端口" + serverport);
         switch (type)
         {
             case AppServer:
-                NSClient client = new NSClient(config.getServerip(),
-                        Integer.parseInt(config.getNodeport()),
-                        buildLoginReq());
+                client = new NSClient(config.getServerip(),
+                        Integer.parseInt(config.getNodeport()), buildLoginReq(),
+                        false);
                 client.start();
                 break;
             
@@ -239,11 +252,11 @@ public class NettyServer extends Thread
     private NettyMessage buildLoginReq()
     {
         NettyMessage message = new NettyMessage();
-        message.setHeader(NodeServerType.LC.toString());
+        message.setHeader(AppServerType.LC.toString());
         try
         {
-            message.setContent((Constants.SEPORATE+getContent() + Constants.MESSAFE_END_TAG)
-                    .getBytes("UTF-8"));
+            message.setContent((Constants.SEPORATE + getContent()
+                    + Constants.MESSAFE_END_TAG).getBytes("UTF-8"));
         }
         catch (UnsupportedEncodingException e)
         {
@@ -258,11 +271,11 @@ public class NettyServer extends Thread
         
         NettyMessage message = new NettyMessage();
         
-        message.setHeader(NodeServerType.LQ.toString());
+        message.setHeader(AppServerType.LQ.toString());
         try
         {
-            message.setContent((Constants.SEPORATE+getContent() + Constants.MESSAFE_END_TAG)
-                    .getBytes("UTF-8"));
+            message.setContent((Constants.SEPORATE + getContent()
+                    + Constants.MESSAFE_END_TAG).getBytes("UTF-8"));
         }
         catch (UnsupportedEncodingException e)
         {

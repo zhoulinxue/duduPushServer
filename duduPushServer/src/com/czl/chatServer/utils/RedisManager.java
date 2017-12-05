@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.alibaba.fastjson.JSONObject;
+import com.czl.chatClient.bean.DuduPosition;
 import com.czl.chatClient.bean.DuduUser;
 import com.czl.chatClient.utils.DateUtils;
 import com.czl.chatClient.utils.Log;
@@ -26,6 +27,72 @@ public class RedisManager
         return channelMap.get(uid);
     }
     
+    
+
+    /**
+     * 
+     * @param currNsIpPort
+     * @return
+     */
+
+    public static boolean nsShutDown(String currNsIpPort) {
+        Log.e(currNsIpPort+"被移除");
+        try {
+            String key = Constants.NS_IP + currNsIpPort;
+            String sum = JedisUtils.get(key);
+            if (StringUtils.isEmpty(sum)) {
+                sum = "0";
+            }
+            JedisUtils.del(key);
+            JedisUtils.del(Constants.THIS_NS_ONLIN + currNsIpPort);
+            JedisUtils.setDel(Constants.NS_LIST, currNsIpPort);
+        } catch (NumberFormatException e) {
+
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+    
+    /**
+     * 获取NS服务器 的监听端口号
+     * 
+     * @param currIp
+     * @return
+     */
+    public static boolean nodeportExit(String currIp) {
+        String key = Constants.ND_SERVER_IP + currIp;
+        JedisUtils.del(key);
+        return true;
+    }
+    
+    /**
+     * 缓存NS 服务器的监听端口号
+     * 
+     * @param currIp
+     * @param port
+     * @return
+     */
+    public static boolean nsNodePortRegister(String currIp, String port) {
+        String key = Constants.ND_SERVER_IP + currIp;
+        JedisUtils.set(key, port, 0);
+        return true;
+    }
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：
+      * @author zhouxue
+      * @param ipAndPort [参数说明]
+      * @return void [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    
+    public static void addNs(String ipAndPort){
+        JedisUtils.setSetAdd(Constants.NS_LIST, ipAndPort);
+    }
+    
     /**
      * 
       * 功能简述：
@@ -41,6 +108,7 @@ public class RedisManager
     {
         // TODO Auto-generated method stub
         Log.e("登录成功" + userid);
+        channel.attr(Constants.KEY_USER_ID).set(userid);
         channelMap.put(userid, channel);
     }
     
@@ -111,12 +179,12 @@ public class RedisManager
       * @exception throws [异常类型] [异常说明]
       * @see [类、类#方法、类#成员]
      */
-    public static DuduUser getUserFromRedis(String userid)
+    public static DuduPosition getUserFromRedis(String userid)
     {
         // TODO Auto-generated method stub
         String json = JedisUtils.get(Constants.USER + userid);
         if (!StringUtils.isEmpty(json))
-            return JSONObject.parseObject(json, DuduUser.class);
+            return JSONObject.parseObject(json, DuduPosition.class);
         else
         {
             return null;
@@ -359,9 +427,9 @@ public class RedisManager
      * @param userid
      * @return
      */
-    public static DuduUser IsOnline(String userid)
+    public static DuduPosition IsOnline(String userid)
     {
-        DuduUser user = null;
+        DuduPosition user = null;
         try
         {
             user = getUserFromRedis(userid);
@@ -412,7 +480,7 @@ public class RedisManager
     public static String getChatwithFriend(String userId)
     {
         // TODO Auto-generated method stub
-        return null;
+        return JedisUtils.get(Constants.CHAT_WITH_FRIEND+userId);
     }
     
     /**
@@ -495,6 +563,17 @@ public class RedisManager
         JedisUtils.del(Constants.GROUP_CHATTING + uid);
         JedisUtils.setDel(Constants.GROUP_CHATTING + groupid, uid);
         deleteGroupIp(groupid);
+    }
+
+    /**
+     * 获取NS服务器 的监听端口号
+     * 
+     * @param currIp
+     * @return
+     */
+    public static boolean keyIsExist(String key) {
+       
+        return JedisUtils.exists(key);
     }
     
 }

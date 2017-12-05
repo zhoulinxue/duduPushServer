@@ -14,8 +14,10 @@ import io.netty.util.AttributeKey;
 public class Constants {
 	public static final String IM_CHANELL_TYPE = "channelcall";
 	public static final String IM_FRIEND_TYPE = "friendcall";
+    private static final String NS_NAME = "nsName";
 	public static String USER_HEAD="user";
 	public static AttributeKey<String> KEY_USER_ID = AttributeKey.valueOf(USER_HEAD);
+	public static AttributeKey<String> NS_USER_NAME = AttributeKey.valueOf(NS_NAME);
 	public static String CONTENT_CHAR_SET ="utf-8";
 	public static String POSITION_KEY="position.";
 	public static String CALL_USER="caling.";
@@ -37,6 +39,7 @@ public class Constants {
     public static final String USER = "user.";
     public static final String NODE_PORT = "nd.";
     public static final String NS_IP =  "ns.";
+    public static final String NS_LIST = "ns_list";
     // 分隔符
     public static String SEPORATE="|";
     //消息结束符
@@ -57,4 +60,5 @@ public class Constants {
     public static String NS_IP_PORT= "ns.";
     public static String CHAT_WITH_FRIEND="ct.";
     public static String GROUP_CHATTING="ctg.";
+    public static String ND_SERVER_IP="nd."; 
 }

@@ -3,6 +3,8 @@ package com.czl.chatServer;
 import com.alibaba.fastjson.JSONObject;
 import com.czl.chatServer.server.IHandlerServer;
 import com.czl.chatServer.server.Impl.handlerImpl.AppHandlerServer;
+import com.czl.chatServer.server.Impl.handlerImpl.MSNodeHandler;
+import com.czl.chatServer.server.Impl.handlerImpl.NSManagerHandler;
 import com.czl.chatServer.server.Impl.handlerImpl.NodeHandlerServer;
 import com.czl.chatServer.server.Impl.handlerImpl.ShorthandlerServer;
 import com.czl.chatServer.utils.FileUtil;
@@ -103,7 +105,8 @@ public class NSConfig
         NSConfig.Builder builder = new Builder();
         builder.setAppHandler(new AppHandlerServer())
                 .setNodeHandler(new NodeHandlerServer())
-                .setShorHandler(new ShorthandlerServer());
+                .setShorHandler(new ShorthandlerServer())
+                .setNSManagerHandler(new NSManagerHandler()).setMSNodeHandler(new MSNodeHandler());
         return builder;
     }
     
@@ -282,12 +285,35 @@ public class NSConfig
         private IHandlerServer nodeHandler;
         
         private IHandlerServer shorHandler;
+        // MS 管理NS 监听
+        private IHandlerServer nsManagerHandler;
+        
+        private IHandlerServer msNodeHandler;
         
         public Builder()
         {
             super();
         }
         
+        public IHandlerServer getMsNodeHandler()
+        {
+            return msNodeHandler;
+        }
+
+        public Builder setMSNodeHandler(MSNodeHandler msNodeHandler)
+        {
+            // TODO Auto-generated method stub
+            this.msNodeHandler=msNodeHandler;
+            return this;
+        }
+
+        public Builder setNSManagerHandler(IHandlerServer nsManagerHandler)
+        {
+            // TODO Auto-generated method stub
+            this.nsManagerHandler=nsManagerHandler;
+            return this;
+        }
+
         public IHandlerServer getAppHandler()
         {
             return appHandler;
@@ -320,7 +346,12 @@ public class NSConfig
             this.shorHandler = shorHandler;
             return this;
         }
-        
+
+        public IHandlerServer getNsManagerHandler()
+        {
+            return nsManagerHandler;
+        }
+         
     }
     
     public IHandlerServer getServerHandler(ServerType type)
@@ -339,6 +370,12 @@ public class NSConfig
             case ShortClient:
                 server = getShorHandler();
                 break;
+            case MS_MANAGER_SERVER:
+                server=getNsManagerHandler();
+                break;
+            case MS_NODE_SERVER:
+                server=getMsNodeHander();
+                break;
             
             default:
                 break;
@@ -346,6 +383,18 @@ public class NSConfig
         return server;
     }
     
+    private IHandlerServer getMsNodeHander()
+    {
+        // TODO Auto-generated method stub
+        return builder.getMsNodeHandler();
+    }
+
+    private IHandlerServer getNsManagerHandler()
+    {
+        // TODO Auto-generated method stub
+        return builder.getNsManagerHandler();
+    }
+
     private IHandlerServer getShorHandler()
     {
         // TODO Auto-generated method stub

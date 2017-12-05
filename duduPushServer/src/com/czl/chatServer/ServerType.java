@@ -12,5 +12,5 @@ package com.czl.chatServer;
  */
 public enum ServerType
 {
-    AppServer, NodeServer, ShortClient;
+    AppServer, NodeServer, ShortClient,MS_NODE_SERVER, MS_MANAGER_SERVER;
 }

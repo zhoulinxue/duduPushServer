@@ -32,6 +32,7 @@ public class DataBaseManager
             jdbcUtil.getConnection(DBName.userdb);
             return jdbcUtil.findSingleRefResult(sql, params, DuduUser.class);
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("getUser:UseridorMobile=" + userid + "|" + e.getMessage());
             return null;
         } finally {

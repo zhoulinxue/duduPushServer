@@ -116,7 +116,7 @@ public class AppConnectServerImpl extends BaseMessageServiceImpl
                     && nbcapp != null)
             {
                 // 生成 提醒用户下线 的消息
-                NettyMessage offlineMsg = sendEX(
+                NettyMessage offlineMsg = buildEx(
                         ServerException.OFF_LINE.toInfo());
                 sendMessage(offlineMsg, nbcapp);
             }

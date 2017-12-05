@@ -72,7 +72,7 @@ public class NsClientHandler extends ChannelInboundHandlerAdapter
             byte head1 = message.getHeader1();
             if (head0 == 48 && head1 == 48)
             {
-                // System.out.println("NS向MS注册成功2");
+                 System.out.println("NS向MS注册成功2");
             }
             else
             {

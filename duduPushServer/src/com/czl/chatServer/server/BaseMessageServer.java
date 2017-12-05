@@ -27,7 +27,7 @@ public interface BaseMessageServer {
 	 //json 转对象
 	 public Object jsonToObJect(String json,Class<?> calss) throws Exception;
 	 // 发送异常消息
-	 public NettyMessage sendEX(String content)throws Exception;
+	 public NettyMessage buildEx(String content)throws Exception;
 	// 发送消息
 	 public void sendMessage(NettyMessage message,Channel ctx) throws Exception;
 	 //收条

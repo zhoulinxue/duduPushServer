@@ -12,6 +12,7 @@ import com.czl.chatServer.netty.core.NodeServerType;
 import com.czl.chatServer.netty.decoder.NsClientMessageDecoder;
 import com.czl.chatServer.netty.encode.NettyMessageServerEncoder;
 import com.czl.chatServer.netty.handler.NsClientHandler;
+import com.mysql.jdbc.ReplicationConnection;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
@@ -48,11 +49,12 @@ public class NSClient extends Thread
     
     private int msPort;
     
-    private volatile boolean closed = false;
+    private volatile boolean isConnected = false;
     
     public Channel channel;
-   
+    
     private NettyMessage message;
+
     
     /**
      * 
@@ -63,17 +65,12 @@ public class NSClient extends Thread
      * @param NsName
      *            本机的 基本信息 ip:port:nodePort
      */
-    public NSClient(String msIp, int msPort, NettyMessage message)
+    public NSClient(String msIp, int msPort, NettyMessage message,
+            boolean isSHort)
     {
         this.msIp = msIp;
         this.msPort = msPort;
         this.message = message;
-    }
-    
-    public void close()
-    {
-        closed = true;
-        group.shutdownGracefully();
     }
     
     public void connect()
@@ -103,7 +100,7 @@ public class NSClient extends Thread
                             ch.pipeline().addLast("MessageEncoder",
                                     new NettyMessageServerEncoder());
                             ch.pipeline().addLast("readTimeoutHandler",
-                                    new IdleStateHandler(120, 30, 120,
+                                    new IdleStateHandler(30, 30, 30,
                                             TimeUnit.MINUTES));
                             ch.pipeline().addLast("NsClientHandler",
                                     new NsClientHandler(message));
@@ -113,8 +110,12 @@ public class NSClient extends Thread
             // 发起异步连接操作
             ChannelFuture future = b
                     .connect(new InetSocketAddress(msIp, msPort)).sync();
-            channel=future.channel();
-            channel.closeFuture().sync();
+            if(future.isSuccess()){
+                isConnected = true;
+                channel = future.channel();
+                channel.closeFuture().sync();
+            }
+           
         }
         catch (Exception e)
         {
@@ -124,35 +125,41 @@ public class NSClient extends Thread
         finally
         {
             // 所有资源释放完成之后，清空资源，再次发起重连操作
-            if (closed)
+            reconnect();
+        }
+    }
+    
+    private void reconnect()
+    {
+        // TODO Auto-generated method stub
+        if (isConnected)
+        {
+            return;
+        }
+        executor.execute(new Runnable()
+        {
+            @Override
+            public void run()
             {
-                return;
-            }
-            executor.execute(new Runnable()
-            {
-                @Override
-                public void run()
+                try
                 {
+                    TimeUnit.SECONDS.sleep(1);
                     try
                     {
-                        TimeUnit.SECONDS.sleep(1);
-                        try
-                        {
-                            System.out.println("发起重连NS操作");
-                            connect();// 发起重连操作
-                        }
-                        catch (Exception e)
-                        {
-                            e.printStackTrace();
-                        }
+                        System.out.println("发起重连NS操作");
+                        connect();// 发起重连操作
                     }
-                    catch (InterruptedException e)
+                    catch (Exception e)
                     {
                         e.printStackTrace();
                     }
                 }
-            });
-        }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
     
     @Override
@@ -166,7 +173,9 @@ public class NSClient extends Thread
         if (channel != null)
         {
             channel.writeAndFlush(message);
-        }else {
+        }
+        else
+        {
             Log.e("channel ==null");
         }
     }
