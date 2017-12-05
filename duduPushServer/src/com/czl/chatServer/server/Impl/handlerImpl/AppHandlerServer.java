@@ -89,7 +89,7 @@ public class AppHandlerServer extends BaseMessageServiceImpl
                 ChattingModelManager.getInstance().userQuit(ctx, msg);
                 friendChatServer.endFriendChat(ctx, msg);
                 break;
-            case ON_LINE:
+            case ON:
                 nettyServer.userIsOnLine(ctx, msg);
                 break;
             case SM:

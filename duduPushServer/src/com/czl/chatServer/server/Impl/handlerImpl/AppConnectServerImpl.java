@@ -127,7 +127,7 @@ public class AppConnectServerImpl extends BaseMessageServiceImpl
         {
             // 不在本服务器
             NettyMessage message = buildMessage(
-                    AppServerType.RELOGIN_OTHERNS_TYPE);
+                    AppServerType.CL);
             String content = alreadyUser.getUserid() + seporate()
                     + currentUser.getDiviceid();
             message.setContent(getContentByte(content));

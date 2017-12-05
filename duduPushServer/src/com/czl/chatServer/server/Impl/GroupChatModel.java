@@ -108,7 +108,7 @@ public class GroupChatModel extends BaseMessageServiceImpl
                     {
                         // 交由NS服务器转发
                         NettyMessage arg0 = buildMessage(
-                                AppServerType.INVITE_USER_ON_OTHER_NS);
+                                AppServerType.TM);
                         arg0.setContent(getContentByte(userJson + seporate()
                                 + groupJson + seporate() + u.getUserid()
                                 + seporate() + getCurrentIp(ctx.channel())
