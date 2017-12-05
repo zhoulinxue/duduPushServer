@@ -1,8 +1,11 @@
 package com.czl.chatServer.server.Impl.handlerImpl;
 
+import java.util.List;
+
 import com.czl.chatClient.AppServerType;
 import com.czl.chatClient.bean.DuduPosition;
 import com.czl.chatClient.bean.NettyMessage;
+import com.czl.chatClient.utils.Log;
 import com.czl.chatClient.utils.StringUtils;
 import com.czl.chatServer.Constants;
 import com.czl.chatServer.netty.ServerException;
@@ -35,6 +38,7 @@ public class NSManagerHandler extends BaseMessageServiceImpl
                 String ipport = "";
                 String acStr = message.getCtxUTF8String();
                 String uid = getUserId(acStr);
+                
                 if (!StringUtils.isEmpty(uid))
                 {
                     ipport = getIpAndPortFromCacheMsg(uid);
@@ -44,29 +48,27 @@ public class NSManagerHandler extends BaseMessageServiceImpl
                     ipport = getRandom();
                 }
                 String[] nsIpandPort = null;
+                Log.e(uid + ipport);
                 if (!StringUtils.isEmpty(ipport))
                 {
                     nsIpandPort = ipport.split(":");
-                    if (!RedisManager.keyIsExist(
-                            Constants.ND_SERVER_IP + nsIpandPort[0]))
-                    {
-                        ipport = nsIpandPort[0] + Constants.IP_PORT_SEPORATE
+                    
+                  String abstr = nsIpandPort[0] + Constants.SEPORATE
                                 + nsIpandPort[1];
-                    }
-                    NettyMessage abmsg = buildMessage(AppServerType.AB, ipport);
-                    sendMessage(abmsg, ctx.channel());                   
+                    
+                    NettyMessage abmsg = buildMessage(AppServerType.AB, abstr);
+                    sendMessage(abmsg, ctx.channel());
                 }
                 else
                 {
                     sendMessage(buildEx(ServerException.NS_NOEXIST.toInfo()),
                             ctx.channel());
-                }              
-                break; 
+                }
+                break;
             default:
                 break;
         }
     }
-   
     
     /**
      * 
@@ -116,7 +118,13 @@ public class NSManagerHandler extends BaseMessageServiceImpl
     private String getRandom()
     {
         // TODO Auto-generated method stub
-        return null;
+        List<String> list=RedisManager.getNSList();
+        if(list==null||list.size()==0){
+            return null;
+        }
+        int ran = (int)(Math.random() * (list.size()-1));
+        String[] ipandPort=list.get(ran).split(Constants.IP_PORT_SEPORATE);
+        return ipandPort[0]+Constants.IP_PORT_SEPORATE+ipandPort[1];
     }
     
     /**

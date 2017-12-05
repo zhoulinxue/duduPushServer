@@ -266,7 +266,7 @@ public class BaseMessageServiceImpl implements BaseMessageServer
             NettyMessage respone)
     {
         NSClient client = new NSClient(ip,
-                Integer.parseInt(RedisManager.getNodeport(ip)), mymsg,true);
+                Integer.parseInt(RedisManager.getNodeport(ip)), mymsg);
         client.start();
     }
     
@@ -350,17 +350,7 @@ public class BaseMessageServiceImpl implements BaseMessageServer
     public String[] getUserDataFromMsg(NettyMessage msg)
     {
         // TODO Auto-generated method stub
-        try
-        {
-            return (new String(msg.getContent(), Constants.CONTENT_CHAR_SET))
-                    .split("\\|");
-        }
-        catch (UnsupportedEncodingException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return null;
+       return msg.getUserDataFromMsg();
     }
     
     public void sendIsOnLine(Channel ctx, DuduUser user, String uid)

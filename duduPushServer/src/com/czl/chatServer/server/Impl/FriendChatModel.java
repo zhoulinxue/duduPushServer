@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.alibaba.fastjson.JSONObject;
 import com.czl.chatClient.AppServerType;
 import com.czl.chatClient.bean.DuduPosition;
 import com.czl.chatClient.bean.DuduUser;
@@ -28,6 +29,7 @@ public class FriendChatModel extends BaseMessageServiceImpl
     private DuduUser callingUser;
     
     private DuduUser myUser;
+    
     private List<DuduUser> userList = new ArrayList<>();
     
     @Override
@@ -38,8 +40,8 @@ public class FriendChatModel extends BaseMessageServiceImpl
     }
     
     @Override
-    public boolean creatChat(ChannelHandlerContext ctx,
-            NettyMessage msg) throws UnsupportedEncodingException
+    public boolean creatChat(ChannelHandlerContext ctx, NettyMessage msg)
+            throws UnsupportedEncodingException
     {
         // TODO Auto-generated method stub
         switch (msg.getAppServerType())
@@ -115,7 +117,8 @@ public class FriendChatModel extends BaseMessageServiceImpl
     }
     
     @Override
-    public void userQuit(ChannelHandlerContext ctx, NettyMessage msg)throws UnsupportedEncodingException
+    public void userQuit(ChannelHandlerContext ctx, NettyMessage msg)
+            throws UnsupportedEncodingException
     {
         // TODO Auto-generated method stub
         String[] data = getUserDataFromMsg(msg);
@@ -146,12 +149,30 @@ public class FriendChatModel extends BaseMessageServiceImpl
     {
         // TODO Auto-generated method stub
         status = UserStatus.SLIENCE;
+        String[] data = getUserDataFromMsg(msg);
+        switch (msg.getAppServerType())
+        {
+            case FR: 
+            case FE:  
+            case ED:
+                RedisManager.deleteCalling(data[2], getUserIdFromChannel(ctx));
+                break;
+            default:
+                break;
+        }
     }
     
     @Override
-    public void locationChange(ChannelHandlerContext ctx, NettyMessage msg)
+    public void locationChange(ChannelHandlerContext ctx, NettyMessage msg)throws UnsupportedEncodingException
     {
         // TODO Auto-generated method stub
+        String[] data=msg.getUserDataFromMsg();
+        DuduPosition position=JSONObject.parseObject(data[1], DuduPosition.class);
+        Channel nbcapp =RedisManager.getChannelByUid(RedisManager.getChatwithFriend(position.getUserid()));
+        if (nbcapp != null) {
+            NettyMessage xymsg = buildMessage(AppServerType.XY, data[1]);
+            sendMessage(xymsg, nbcapp);
+        }
         
     }
     
@@ -224,7 +245,7 @@ public class FriendChatModel extends BaseMessageServiceImpl
     {
         this.callingUser = callingUser;
     }
-
+    
     @Override
     public List<DuduPosition> getUsers()
     {
@@ -232,24 +253,25 @@ public class FriendChatModel extends BaseMessageServiceImpl
         
         return null;
     }
-
+    
     @Override
     public void statusChanged(ChannelHandlerContext ctx, NettyMessage msg)
     {
         // TODO Auto-generated method stub
-        String[] data=getUserDataFromMsg(msg);
+        String[] data = getUserDataFromMsg(msg);
         switch (msg.getAppServerType())
         {
             case FA:
-                status=UserStatus.ON_LINE_P2P_CHATTING;
-                RedisManager.startChattingWithFriend(getUserIdFromChannel(ctx),data[2]);
+                status = UserStatus.ON_LINE_P2P_CHATTING;
+                RedisManager.startChattingWithFriend(getUserIdFromChannel(ctx),
+                        data[2]);
                 break;
             
             default:
                 break;
         }
     }
-
+    
     @Override
     public String getServerId()
     {

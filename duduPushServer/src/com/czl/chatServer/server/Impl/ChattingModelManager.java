@@ -18,6 +18,7 @@ import com.czl.chatServer.Constants;
 import com.czl.chatServer.UserStatus;
 import com.czl.chatServer.server.IChatModelServer;
 import com.czl.chatServer.server.IFriendChatLifeCycle;
+import com.czl.chatServer.utils.DataBaseManager;
 import com.czl.chatServer.utils.RedisManager;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -82,7 +83,7 @@ public class ChattingModelManager extends BaseMessageServiceImpl
             case GS:
                 if (!isbusy)
                 {
-                   
+                    
                     Groupbean groupbean = com.alibaba.fastjson.JSONObject
                             .parseObject(gsdata[2], Groupbean.class);
                     server = groupChatModels.get(groupbean.getGroupId());
@@ -103,7 +104,8 @@ public class ChattingModelManager extends BaseMessageServiceImpl
                 if (isbusy)
                 {
                     NettyMessage frmsg = buildMessage(AppServerType.FR);
-                    frmsg.setContent(getContentByte(gsdata[1] + "|" + gsdata[2]));
+                    frmsg.setContent(
+                            getContentByte(gsdata[1] + "|" + gsdata[2]));
                     sendMessage(frmsg, ctx.channel());
                 }
                 else
@@ -145,18 +147,29 @@ public class ChattingModelManager extends BaseMessageServiceImpl
         {
             case FR:
                 ser = friendChatModels.get(data[2]);
-                List<DuduPosition> list = ser.getUsers();
-                if (list != null && list
-                        .contains(new DuduUser(getUserIdFromChannel(ctx))))
+                if (ser != null)
                 {
+                    ser.finishGroup(ctx, msg);
                     friendChatModels.remove(data[2]);
-                    RedisManager.deleteCalling(data[2],
-                            getUserIdFromChannel(ctx));
                 }
                 break;
             case FE:
-                ser = friendChatModels.remove(getUserIdFromChannel(ctx));
-                RedisManager.deleteCalling(getUserIdFromChannel(ctx), data[2]);
+                ser = friendChatModels.get(getUserIdFromChannel(ctx));
+                if (ser != null)
+                {
+                    ser.finishGroup(ctx, msg);
+                    friendChatModels.remove(data[2]);
+                }
+                
+                break;
+            case ED:
+                ser = friendChatModels.get(getUserIdFromChannel(ctx));
+                if (ser != null)
+                {
+                    ser.finishGroup(ctx, msg);
+                    friendChatModels.remove(data[2]);
+                }
+                
                 break;
             case OU:
                 String friendId = RedisManager.getChatwithFriend(uid);
@@ -202,9 +215,31 @@ public class ChattingModelManager extends BaseMessageServiceImpl
     }
     
     @Override
-    public void locationChange(ChannelHandlerContext ctx, NettyMessage msg)
+    public void locationChange(ChannelHandlerContext ctx, NettyMessage msg)throws UnsupportedEncodingException
     {
         // TODO Auto-generated method stub
+        IChatModelServer server=null;
+        String[] data = getUserDataFromMsg(msg);
+        String uid=getUserIdFromChannel(ctx);
+        DuduPosition position=JSONObject.parseObject(data[1], DuduPosition.class);
+        DataBaseManager.writePosition(position);
+        switch (msg.getAppServerType())
+        {
+            case XY:
+                server=friendChatModels.get(uid);
+                if(server!=null){
+                    server.locationChange(ctx, msg);
+                }else{
+                    Log.e("server==null"+uid);
+                }          
+                break;
+            case XZ:
+                
+                break;
+            
+            default:
+                break;
+        }
         
     }
     
@@ -333,8 +368,7 @@ public class ChattingModelManager extends BaseMessageServiceImpl
                 if (server != null)
                 {
                     server.statusChanged(ctx, msg);
-                    RedisManager.deleteCalling(data[2],
-                            getUserIdFromChannel(ctx));
+                    friendChatModels.put(getUserIdFromChannel(ctx), server);
                 }
                 break;
             

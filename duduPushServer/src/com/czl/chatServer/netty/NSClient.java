@@ -65,8 +65,7 @@ public class NSClient extends Thread
      * @param NsName
      *            本机的 基本信息 ip:port:nodePort
      */
-    public NSClient(String msIp, int msPort, NettyMessage message,
-            boolean isSHort)
+    public NSClient(String msIp, int msPort, NettyMessage message)
     {
         this.msIp = msIp;
         this.msPort = msPort;

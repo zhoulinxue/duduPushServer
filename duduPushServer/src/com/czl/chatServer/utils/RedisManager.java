@@ -1,7 +1,10 @@
 package com.czl.chatServer.utils;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.alibaba.fastjson.JSONObject;
@@ -36,7 +39,7 @@ public class RedisManager
      */
 
     public static boolean nsShutDown(String currNsIpPort) {
-        Log.e(currNsIpPort+"被移除");
+        Log.e("NS:"+currNsIpPort+"已经挂了..");
         try {
             String key = Constants.NS_IP + currNsIpPort;
             String sum = JedisUtils.get(key);
@@ -501,6 +504,7 @@ public class RedisManager
         {
             JedisUtils.set(Constants.CHAT_WITH_FRIEND + selfid, friendid, 0);
             JedisUtils.set(Constants.CHAT_WITH_FRIEND + friendid, selfid, 0);
+            deleteCalling(friendid, selfid);
         }
         catch (Exception e)
         {
@@ -574,6 +578,23 @@ public class RedisManager
     public static boolean keyIsExist(String key) {
        
         return JedisUtils.exists(key);
+    }
+
+
+
+    public static List<String> getNSList()
+    {
+        // TODO Auto-generated method stub
+        Set<String> set=JedisUtils.getSet(Constants.NS_LIST);
+        List<String> list = new ArrayList<>();
+        if (set == null) {
+            return list;
+        }
+        for (Iterator<String> it = set.iterator(); it.hasNext();) {
+            String v = it.next();
+            list.add(v);
+        }
+        return list;
     }
     
 }

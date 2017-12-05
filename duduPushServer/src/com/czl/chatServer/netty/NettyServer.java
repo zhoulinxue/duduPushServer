@@ -12,7 +12,6 @@ import com.czl.chatClient.utils.Log;
 import com.czl.chatServer.Constants;
 import com.czl.chatServer.NSConfig;
 import com.czl.chatServer.ServerType;
-import com.czl.chatServer.netty.core.NodeServerType;
 import com.czl.chatServer.netty.decoder.NsAppMessageDecoder;
 import com.czl.chatServer.netty.encode.NettyMessageServerEncoder;
 import com.czl.chatServer.netty.handler.NettyHandler;
@@ -218,13 +217,12 @@ public class NettyServer extends Thread
     private void dosomthingonSuccess(ServerType type)
     {
         // TODO Auto-generated method stub
-        Log.e("服务启动成功_绑定端口" + serverport);
         switch (type)
         {
             case AppServer:
+                Log.e("服务启动成功_绑定端口" + serverport);
                 client = new NSClient(config.getServerip(),
-                        Integer.parseInt(config.getNodeport()), buildLoginReq(),
-                        false);
+                        Integer.parseInt(config.getNodeport()), buildLoginReq());
                 client.start();
                 break;
             

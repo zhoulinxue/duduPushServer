@@ -1,9 +1,14 @@
 package com.czl.chatServer.utils;
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import com.czl.chatClient.bean.DuduPosition;
 import com.czl.chatClient.bean.DuduUser;
 import com.czl.chatClient.bean.Groupbean;
 import com.czl.chatClient.utils.Log;
@@ -38,6 +43,26 @@ public class DataBaseManager
         } finally {
             jdbcUtil.releaseConn();
         }
+    }
+    
+    public static void writePosition(DuduPosition position) {
+        JdbcUtil jdbcUtil = new JdbcUtil();
+        // System.out.println(time.format(nowTime));
+        String sql = "insert   userdb.userposition (dataid,userid,longitude,latitude,updatetime) values (uuid(),'"
+                + position.getUserid() + "'," + position.getX() + "," + position.getY() + ",now())";
+        Connection conn = null;
+        CallableStatement s = null;
+        try {
+            conn = jdbcUtil.getConnection();
+            s = conn.prepareCall(sql);
+            s.execute();
+
+        } catch (SQLException e) {
+            Log.error(e.getMessage());
+        } finally {
+            jdbcUtil.releaseConn();
+        }
+
     }
     
 

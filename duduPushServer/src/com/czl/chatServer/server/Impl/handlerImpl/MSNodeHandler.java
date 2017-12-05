@@ -16,14 +16,7 @@ public class MSNodeHandler extends BaseMessageServiceImpl implements IHandlerSer
     public void channelActive(ChannelHandlerContext ctx) throws Exception
     {
         // TODO Auto-generated method stub
-        String nsName=ctx.channel().attr(Constants.NS_USER_NAME).get();
-        if(!StringUtils.isEmpty(nsName)){
-            String[] ipAndPort = nsName.split(":");
-            // 删除 Node 监听端口
-            RedisManager.nodeportExit(ipAndPort[0]);
-            // NS服务器掉线 重置 该服务器人数
-            RedisManager.nsShutDown(nsName);
-        }
+        
         
     }
 
@@ -74,7 +67,14 @@ public class MSNodeHandler extends BaseMessageServiceImpl implements IHandlerSer
     public void channelInactive(ChannelHandlerContext ctx) throws Exception
     {
         // TODO Auto-generated method stub
-        
+        String nsName=ctx.channel().attr(Constants.NS_USER_NAME).get();
+        if(!StringUtils.isEmpty(nsName)){
+            String[] ipAndPort = nsName.split(":");
+            // 删除 Node 监听端口
+            RedisManager.nodeportExit(ipAndPort[0]);
+            // NS服务器掉线 重置 该服务器人数
+            RedisManager.nsShutDown(nsName);
+        }
     }
     
 }
