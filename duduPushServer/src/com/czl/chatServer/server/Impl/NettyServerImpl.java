@@ -1,8 +1,11 @@
 package com.czl.chatServer.server.Impl;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.czl.chatClient.bean.DuduPosition;
+import com.alibaba.fastjson.JSONObject;
+import com.czl.chatClient.AppServerType;
 import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatServer.server.INettyServer;
 import com.czl.chatServer.utils.RedisManager;
@@ -31,10 +34,20 @@ public class NettyServerImpl extends BaseMessageServiceImpl
     }
     
     @Override
-    public void isChannelActive(ChannelHandlerContext ctx, NettyMessage msg)
+    public void isChannelActive(ChannelHandlerContext ctx, NettyMessage msg)throws UnsupportedEncodingException
     {
         // TODO Auto-generated method stub
-        
+        String[] data=msg.getUserDataFromMsg();
+      List<String>  channelIds = JSONObject.parseArray(data[1], String.class);
+      List<String> respones = new ArrayList<>();
+      for (String channelId : channelIds) {
+          boolean isActive = RedisManager.isChannelActive(channelId);
+          if (isActive) {
+              respones.add(channelId);
+          }
+      }
+      NettyMessage message = buildMessage(AppServerType.CA, JSONObject.toJSONString(respones));
+      sendMessage(message, ctx.channel());
     }
     
     @Override

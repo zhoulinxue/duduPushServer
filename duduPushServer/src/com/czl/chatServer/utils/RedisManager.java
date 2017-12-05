@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.czl.chatClient.bean.DuduPosition;
 import com.czl.chatClient.bean.DuduUser;
+import com.czl.chatClient.bean.Groupbean;
 import com.czl.chatClient.utils.DateUtils;
 import com.czl.chatClient.utils.Log;
 import com.czl.chatClient.utils.StringUtils;
@@ -480,10 +481,10 @@ public class RedisManager
         }
     }
     
-    public static String getChatwithFriend(String userId)
+    public static String getChatwithFriend(String uid)
     {
         // TODO Auto-generated method stub
-        return JedisUtils.get(Constants.CHAT_WITH_FRIEND+userId);
+        return JedisUtils.get(Constants.CHAT_WITH_FRIEND+uid);
     }
     
     /**
@@ -566,7 +567,6 @@ public class RedisManager
         String groupid = getChatInGroup(uid);
         JedisUtils.del(Constants.GROUP_CHATTING + uid);
         JedisUtils.setDel(Constants.GROUP_CHATTING + groupid, uid);
-        deleteGroupIp(groupid);
     }
 
     /**
@@ -595,6 +595,15 @@ public class RedisManager
             list.add(v);
         }
         return list;
+    }
+
+
+
+    public static boolean isChannelActive(String channelid)
+    {
+        // TODO Auto-generated method stub
+        String ip = getGroupIp(channelid);
+        return !StringUtils.isEmpty(ip);
     }
     
 }

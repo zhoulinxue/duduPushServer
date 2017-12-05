@@ -188,5 +188,7 @@ public interface IChatModelServer
     public void statusChanged(ChannelHandlerContext ctx, NettyMessage msg);
     
     public String  getServerId();
+
+    public void userOffline(DuduPosition position)throws UnsupportedEncodingException;
     
 }

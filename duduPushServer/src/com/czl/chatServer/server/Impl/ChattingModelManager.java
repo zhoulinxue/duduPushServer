@@ -96,7 +96,6 @@ public class ChattingModelManager extends BaseMessageServiceImpl
                     {
                         server.newUserIn(ctx, msg);
                     }
-                    
                     groupChatModels.put(server.getServerId(), server);
                 }
                 break;
@@ -215,26 +214,43 @@ public class ChattingModelManager extends BaseMessageServiceImpl
     }
     
     @Override
-    public void locationChange(ChannelHandlerContext ctx, NettyMessage msg)throws UnsupportedEncodingException
+    public void locationChange(ChannelHandlerContext ctx, NettyMessage msg)
+            throws UnsupportedEncodingException
     {
         // TODO Auto-generated method stub
-        IChatModelServer server=null;
+        IChatModelServer server = null;
         String[] data = getUserDataFromMsg(msg);
-        String uid=getUserIdFromChannel(ctx);
-        DuduPosition position=JSONObject.parseObject(data[1], DuduPosition.class);
+        String uid = getUserIdFromChannel(ctx);
+        if (StringUtils.isEmpty(uid))
+        {
+            return;
+        }
+        DuduPosition position = JSONObject.parseObject(data[1],
+                DuduPosition.class);
         DataBaseManager.writePosition(position);
         switch (msg.getAppServerType())
         {
             case XY:
-                server=friendChatModels.get(uid);
-                if(server!=null){
+                server = friendChatModels.get(uid);
+                if (server != null)
+                {
                     server.locationChange(ctx, msg);
-                }else{
-                    Log.e("server==null"+uid);
-                }          
+                }
+                else
+                {
+                    Log.e("server==null" + uid);
+                }
                 break;
             case XZ:
-                
+                server = groupChatModels.get(RedisManager.getChatInGroup(uid));
+                if (server != null)
+                {
+                    server.locationChange(ctx, msg);
+                }
+                else
+                {
+                    Log.e("server==null" + uid);
+                }
                 break;
             
             default:
@@ -382,6 +398,39 @@ public class ChattingModelManager extends BaseMessageServiceImpl
     {
         // TODO Auto-generated method stub
         return null;
+    }
+    
+    @Override
+    public void userOffline(DuduPosition position)
+            throws UnsupportedEncodingException
+    {
+        // TODO Auto-generated method stub
+        String groupId = RedisManager.getChatInGroup(position.getUserid());
+        String friendId = RedisManager.getChatwithFriend(position.getUserid());
+        IChatModelServer server = null;
+        if (!StringUtils.isEmpty(groupId))
+        {
+            server = groupChatModels.get(groupId);
+            if (server != null)
+            {
+                List<DuduPosition> list = server.getUsers();
+                if (list != null && list.size() > 1)
+                {
+                    server.userOffline(position);
+                }else {
+                    userQuit(position.getUserid());
+                }
+            }
+        }
+        else if (!StringUtils.isEmpty(friendId))
+        {
+            server = friendChatModels.get(position.getUserid());
+            if (server != null)
+            {
+                server.userOffline(position);
+            }
+        }
+        
     }
     
 }

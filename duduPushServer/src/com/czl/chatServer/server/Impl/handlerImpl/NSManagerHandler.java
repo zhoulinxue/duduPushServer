@@ -1,6 +1,7 @@
 package com.czl.chatServer.server.Impl.handlerImpl;
 
 import java.util.List;
+import java.util.StringTokenizer;
 
 import com.czl.chatClient.AppServerType;
 import com.czl.chatClient.bean.DuduPosition;
@@ -106,12 +107,10 @@ public class NSManagerHandler extends BaseMessageServiceImpl
             ipandPort = RedisManager.getGroupIp(groupId);
             System.out.println("NS频道:" + ipandPort);
         }
-        else
-        {
+       if(StringUtils.isEmpty(ipandPort)){
             ipandPort = getRandom();
             System.out.println("NS随机:" + ipandPort);
-        }
-        
+       }
         return ipandPort;
     }
     

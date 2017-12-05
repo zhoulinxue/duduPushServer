@@ -2,8 +2,11 @@ package com.czl.chatServer.server.Impl.handlerImpl;
 
 import java.io.UnsupportedEncodingException;
 
+import com.alibaba.fastjson.JSONObject;
 import com.czl.chatClient.AppServerType;
+import com.czl.chatClient.bean.DuduPosition;
 import com.czl.chatClient.bean.DuduUser;
+import com.czl.chatClient.bean.Groupbean;
 import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatClient.utils.Log;
 import com.czl.chatClient.utils.StringUtils;
@@ -13,6 +16,7 @@ import com.czl.chatServer.server.IConnectLifeCycle;
 import com.czl.chatServer.server.Impl.BaseMessageServiceImpl;
 import com.czl.chatServer.server.Impl.PushMessageImpl;
 import com.czl.chatServer.utils.DBUtils;
+import com.czl.chatServer.utils.DataBaseManager;
 import com.czl.chatServer.utils.RedisManager;
 
 import io.netty.channel.Channel;
@@ -21,10 +25,42 @@ import io.netty.channel.ChannelHandlerContext;
 public class AppConnectServerImpl extends BaseMessageServiceImpl
         implements IConnectLifeCycle
 {
+    private AppHandlerServer appHandler;
+    
+    public AppConnectServerImpl(AppHandlerServer appHandler)
+    {
+        super();
+        this.appHandler = appHandler;
+    }
+    
     @Override
     public void appOffline(ChannelHandlerContext ctx)
+            throws UnsupportedEncodingException
     {
+        try
+        {
         // TODO Auto-generated method stub
+        String uid = getUserIdFromChannel(ctx);
+        if (!StringUtils.isEmpty(uid))
+        {
+            NettyMessage msg = null;
+            String friendId = RedisManager.getChatwithFriend(uid);
+            String groupId=RedisManager.getChatInGroup(uid);
+            if (!StringUtils.isEmpty(friendId)||!StringUtils.isEmpty(groupId))
+            {
+                msg=buildMessage(AppServerType.OF, JSONObject.toJSONString(DataBaseManager.getUserFromDb(uid)));
+                
+            }
+            if (msg != null)
+                appHandler.channelRead(ctx, msg);  
+           
+           }
+        }
+        catch (Exception e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         
     }
     
@@ -83,8 +119,36 @@ public class AppConnectServerImpl extends BaseMessageServiceImpl
             RedisManager.putChannel(user.getUserid(), ctx.channel());
             RedisManager.putUserInfo(ctx, user);
             PushMessageImpl.getInstance().pushImMessages(ctx.channel(), user);
+            checkUserStatus(ctx);
         }
         
+    }
+    
+    private void checkUserStatus(ChannelHandlerContext ctx)
+            throws UnsupportedEncodingException
+    {
+        // TODO Auto-generated method stub
+        String uid = getUserIdFromChannel(ctx);
+        String friendId = RedisManager.getChatwithFriend(uid);
+        String groupId = RedisManager.getChatInGroup(uid);
+        
+        if (!StringUtils.isEmpty(friendId))
+        {
+            DuduPosition position = RedisManager.IsOnline(friendId);
+            if (position != null)
+            {
+                NettyMessage msg = buildMessage(AppServerType.CF,
+                        JSONObject.toJSONString(position));
+                sendMessage(msg, ctx.channel());
+            }
+        }
+        else if (!StringUtils.isEmpty(groupId))
+        {
+            Groupbean groupbean = DataBaseManager.getChannelMsgFromDb(groupId);
+            NettyMessage cgmsg = buildMessage(AppServerType.CG,
+                    JSONObject.toJSONString(groupbean));
+            sendMessage(cgmsg, ctx.channel());
+        }
     }
     
     /**
@@ -126,8 +190,7 @@ public class AppConnectServerImpl extends BaseMessageServiceImpl
         else
         {
             // 不在本服务器
-            NettyMessage message = buildMessage(
-                    AppServerType.CL);
+            NettyMessage message = buildMessage(AppServerType.CL);
             String content = alreadyUser.getUserid() + seporate()
                     + currentUser.getDiviceid();
             message.setContent(getContentByte(content));

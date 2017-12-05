@@ -10,6 +10,7 @@ import com.czl.chatClient.AppServerType;
 import com.czl.chatClient.bean.DuduPosition;
 import com.czl.chatClient.bean.DuduUser;
 import com.czl.chatClient.bean.NettyMessage;
+import com.czl.chatClient.utils.StringUtils;
 import com.czl.chatServer.ChatType;
 import com.czl.chatServer.Constants;
 import com.czl.chatServer.UserStatus;
@@ -152,8 +153,8 @@ public class FriendChatModel extends BaseMessageServiceImpl
         String[] data = getUserDataFromMsg(msg);
         switch (msg.getAppServerType())
         {
-            case FR: 
-            case FE:  
+            case FR:
+            case FE:
             case ED:
                 RedisManager.deleteCalling(data[2], getUserIdFromChannel(ctx));
                 break;
@@ -163,13 +164,17 @@ public class FriendChatModel extends BaseMessageServiceImpl
     }
     
     @Override
-    public void locationChange(ChannelHandlerContext ctx, NettyMessage msg)throws UnsupportedEncodingException
+    public void locationChange(ChannelHandlerContext ctx, NettyMessage msg)
+            throws UnsupportedEncodingException
     {
         // TODO Auto-generated method stub
-        String[] data=msg.getUserDataFromMsg();
-        DuduPosition position=JSONObject.parseObject(data[1], DuduPosition.class);
-        Channel nbcapp =RedisManager.getChannelByUid(RedisManager.getChatwithFriend(position.getUserid()));
-        if (nbcapp != null) {
+        String[] data = msg.getUserDataFromMsg();
+        DuduPosition position = JSONObject.parseObject(data[1],
+                DuduPosition.class);
+        Channel nbcapp = RedisManager.getChannelByUid(
+                RedisManager.getChatwithFriend(position.getUserid()));
+        if (nbcapp != null)
+        {
             NettyMessage xymsg = buildMessage(AppServerType.XY, data[1]);
             sendMessage(xymsg, nbcapp);
         }
@@ -187,7 +192,7 @@ public class FriendChatModel extends BaseMessageServiceImpl
     public void userQuit(String userid)
     {
         // TODO Auto-generated method stub
-        
+        RedisManager.deleteCalling(RedisManager.getChatwithFriend(userid), userid);
     }
     
     @Override
@@ -277,6 +282,25 @@ public class FriendChatModel extends BaseMessageServiceImpl
     {
         // TODO Auto-generated method stub
         return callingUser.getUserid();
+    }
+    
+    @Override
+    public void userOffline(DuduPosition position)
+            throws UnsupportedEncodingException
+    {
+        // TODO Auto-generated method stub
+        NettyMessage msg = buildMessage(AppServerType.ED,
+                JSONObject.toJSONString(position));
+        String friendId = RedisManager.getChatwithFriend(position.getUserid());
+        if (!StringUtils.isEmpty(friendId))
+        {
+            Channel channel = RedisManager.getChannelByUid(friendId);
+            if (channel != null)
+            {
+                sendMessage(msg, channel);
+            }
+            userQuit(position.getUserid());
+        }
     }
     
 }

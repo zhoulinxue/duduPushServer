@@ -1,6 +1,8 @@
 package com.czl.chatServer.server.Impl.handlerImpl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.czl.chatClient.AppServerType;
+import com.czl.chatClient.bean.DuduPosition;
 import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatClient.utils.Log;
 import com.czl.chatServer.server.IConnectLifeCycle;
@@ -33,7 +35,7 @@ public class AppHandlerServer extends BaseMessageServiceImpl
         implements IHandlerServer
 {
     //连接业务
-    private IConnectLifeCycle connectServer = new AppConnectServerImpl();
+    private IConnectLifeCycle connectServer = new AppConnectServerImpl(this);
     
     //一对一 对讲业务
     private IFriendChatLifeCycle friendChatServer = new FriendChatServerImpl();
@@ -142,6 +144,11 @@ public class AppHandlerServer extends BaseMessageServiceImpl
                 break;
             case GC:
                 nettyServer.groupChages(ctx, msg);
+                break;
+            case OF:
+                String[] data=msg.getUserDataFromMsg();
+                DuduPosition position=JSONObject.parseObject(data[1], DuduPosition.class);
+                ChattingModelManager.getInstance().userOffline(position);
                 break;
             default:
                 break;

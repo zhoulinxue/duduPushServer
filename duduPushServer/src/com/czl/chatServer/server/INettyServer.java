@@ -43,7 +43,7 @@ public interface INettyServer
       * @exception throws [异常类型] [异常说明]
       * @see [类、类#方法、类#成员]
      */
-    public void isChannelActive(ChannelHandlerContext ctx, NettyMessage msg);
+    public void isChannelActive(ChannelHandlerContext ctx, NettyMessage msg)throws UnsupportedEncodingException;
     /**
      * 
       * 功能简述：

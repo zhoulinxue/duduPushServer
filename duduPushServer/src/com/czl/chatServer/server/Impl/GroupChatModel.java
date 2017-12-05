@@ -69,14 +69,14 @@ public class GroupChatModel extends BaseMessageServiceImpl
         String userJson = JSONObject.toJSONString(newUsr);
         String groupJson = JSONObject.toJSONString(
                 DataBaseManager.getChannelMsgFromDb(group.getGroupId()));
-       
+        
         for (ChannelMember menber : list)
         {
-            Log.e("频道内成员......"+menber.getMemberid());
+            Log.e("频道内成员......" + menber.getMemberid());
             if (!getUserIdFromChannel(ctx).equals(menber.getMemberid()))
             {
                 DuduUser u = RedisManager.IsOnline(menber.getMemberid());
-                Log.e("是否在线......"+(u==null));
+                Log.e("是否在线......" + (u == null));
                 if (u == null)
                 {
                     Imbean im = new Imbean();
@@ -94,7 +94,7 @@ public class GroupChatModel extends BaseMessageServiceImpl
                 }
                 else
                 {
-                   
+                    
                     Channel channel = RedisManager
                             .getChannelByUid(u.getUserid());
                     if (channel != null)
@@ -107,8 +107,7 @@ public class GroupChatModel extends BaseMessageServiceImpl
                     else
                     {
                         // 交由NS服务器转发
-                        NettyMessage arg0 = buildMessage(
-                                AppServerType.TM);
+                        NettyMessage arg0 = buildMessage(AppServerType.TM);
                         arg0.setContent(getContentByte(userJson + seporate()
                                 + groupJson + seporate() + u.getUserid()
                                 + seporate() + getCurrentIp(ctx.channel())
@@ -156,7 +155,8 @@ public class GroupChatModel extends BaseMessageServiceImpl
             String[] data)
     {
         // TODO Auto-generated method stub
-        DuduPosition newUsr = JSONObject.parseObject(data[1], DuduPosition.class);
+        DuduPosition newUsr = JSONObject.parseObject(data[1],
+                DuduPosition.class);
         newUsr.setIp(getCurrentIp(ctx.channel()));
         newUsr.setPort(getCurrentPort(ctx.channel()));
         return newUsr;
@@ -164,31 +164,45 @@ public class GroupChatModel extends BaseMessageServiceImpl
     
     @Override
     public IChatModelServer newUserIn(ChannelHandlerContext ctx,
-            NettyMessage msg)throws UnsupportedEncodingException
+            NettyMessage msg) throws UnsupportedEncodingException
     {
         // TODO Auto-generated method stub
         String[] data = getUserDataFromMsg(msg);
-        DuduPosition newUsr = getUserFormMsg(ctx, data);       
+        DuduPosition newUsr = getUserFormMsg(ctx, data);
         Groupbean groupbean = JSONObject.parseObject(data[2], Groupbean.class);
         // 只提示新 进入频道人员
-        if (!userList.contains(newUsr)) {
+        if (!userList.contains(newUsr))
+        {
             userList.add(newUsr);
         }
-        for (DuduPosition u : userList) {
+        for (DuduPosition u : userList)
+        {
             System.out.println("需要转发NT:" + u.getUserid());
-            if (!newUsr.getUserid().equals(u.getUserid()) && !StringUtils.isEmpty(groupbean.getGroupId())) {
+            if (!newUsr.getUserid().equals(u.getUserid())
+                    && !StringUtils.isEmpty(groupbean.getGroupId()))
+            {
                 // 取得APP的连接,发送到APP 如果用户为新加入用户则 发送NT
                 Channel nbcapp = RedisManager.getChannelByUid(u.getUserid());
-                if (nbcapp != null) {// NT
+                if (nbcapp != null)
+                {// NT
                     System.out.println("有链接 转发NT:" + u.getUserid());
-                    if (StringUtils.isEmpty(RedisManager.getChatInGroup(newUsr.getUserid()))) {                     
+                    if (StringUtils.isEmpty(
+                            RedisManager.getChatInGroup(newUsr.getUserid())))
+                    {
                         System.out.println("NT:" + u.getUserid());
                         NettyMessage ntmsg = buildMessage(AppServerType.NT);
-                        ntmsg.setContent(getContentByte(ObjectToString(newUsr.clean(),
-                                new SimplePropertyPreFilter("url", "username", "userid", "x", "y"))
-                                        .append(seporate()).append(ObjectToString(groupbean)).toString()));
+                        ntmsg.setContent(
+                                getContentByte(ObjectToString(newUsr.clean(),
+                                        new SimplePropertyPreFilter("url",
+                                                "username", "userid", "x", "y"))
+                                                        .append(seporate())
+                                                        .append(ObjectToString(
+                                                                groupbean))
+                                                        .toString()));
                         sendMessage(ntmsg, nbcapp);
-                    } else {
+                    }
+                    else
+                    {
                         sendIsOnLine(nbcapp, newUsr, newUsr.getUserid());
                     }
                 }
@@ -212,7 +226,8 @@ public class GroupChatModel extends BaseMessageServiceImpl
             return;
         }
         userList.remove(new DuduPosition(uid));
-        Log.e("频道对讲"+userList.size());
+        
+        Log.e("频道对讲" + userList.size());
         if (userList.size() != 0)
         {
             for (int i = userList.size() - 1; i > -1; i--)
@@ -265,6 +280,8 @@ public class GroupChatModel extends BaseMessageServiceImpl
                     }
                 }
             }
+            RedisManager.deleteGroupIp(groupid);
+           
         }
         RedisManager.deletegroupChatMsg(uid);
     }
@@ -278,8 +295,24 @@ public class GroupChatModel extends BaseMessageServiceImpl
     
     @Override
     public void locationChange(ChannelHandlerContext ctx, NettyMessage msg)
+            throws UnsupportedEncodingException
     {
         // TODO Auto-generated method stub
+        String[] data = msg.getUserDataFromMsg();
+        for (DuduPosition position : getUsers())
+        {
+            if (!position.getUserid().equals(getUserIdFromChannel(ctx)))
+            {
+                Channel channel = RedisManager
+                        .getChannelByUid(position.getUserid());
+                if (channel != null)
+                {
+                    NettyMessage xzmsg = buildMessage(AppServerType.XZ,
+                            data[1]);
+                    sendMessage(xzmsg, channel);
+                }
+            }
+        }
         
     }
     
@@ -349,6 +382,29 @@ public class GroupChatModel extends BaseMessageServiceImpl
         else
         {
             return "";
+        }
+    }
+    
+    @Override
+    public void userOffline(DuduPosition position)
+            throws UnsupportedEncodingException
+    {
+        // TODO Auto-generated method stub
+        if (userList.contains(position))
+        {
+            NettyMessage message = buildMessage(AppServerType.OF,position.getUserid());
+            for (DuduPosition po : userList)
+            {
+                if (!po.getUserid().equals(position.getUserid()))
+                {
+                    Channel channel = RedisManager
+                            .getChannelByUid(po.getUserid());
+                    if (channel != null)
+                    {
+                        sendMessage(message, channel);
+                    }
+                }
+            }
         }
     }
     
