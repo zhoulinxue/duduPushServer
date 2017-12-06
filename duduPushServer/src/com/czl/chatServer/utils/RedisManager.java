@@ -10,7 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.czl.chatClient.bean.DuduPosition;
 import com.czl.chatClient.bean.DuduUser;
-import com.czl.chatClient.bean.Groupbean;
 import com.czl.chatClient.utils.DateUtils;
 import com.czl.chatClient.utils.Log;
 import com.czl.chatClient.utils.StringUtils;
@@ -30,8 +29,27 @@ public class RedisManager
         Log.e("获取连接" + uid);
         return channelMap.get(uid);
     }
-    
-    
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：
+      * @author zhouxue
+      * @return [参数说明]
+      * @return String [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public static String getRandom()
+    {
+        // TODO Auto-generated method stub
+        List<String> list=getNSList();
+        if(list==null||list.size()==0){
+            return null;
+        }
+        int ran = (int)(Math.random() * (list.size()-1));
+        String[] ipandPort=list.get(ran).split(Constants.IP_PORT_SEPORATE);
+        return ipandPort[0]+Constants.IP_PORT_SEPORATE+ipandPort[1];
+    }
 
     /**
      * 
@@ -51,7 +69,6 @@ public class RedisManager
             JedisUtils.del(Constants.THIS_NS_ONLIN + currNsIpPort);
             JedisUtils.setDel(Constants.NS_LIST, currNsIpPort);
         } catch (NumberFormatException e) {
-
             e.printStackTrace();
         }
         return true;
@@ -132,6 +149,7 @@ public class RedisManager
     public static String putGroupIp(String groupId, String ipandPort)
     {
         // TODO Auto-generated method stub
+        JedisUtils.setSetAdd(Constants.GROUP_LIST+ipandPort, groupId);
         return JedisUtils.set(Constants.GROUP_IP + groupId, ipandPort, 0);
     }
     
@@ -557,8 +575,10 @@ public class RedisManager
     public static void deleteGroupIp(String groupid)
     {
         // TODO Auto-generated method stub
+        String groupIp=getGroupIp(groupid);
         JedisUtils.del(Constants.GROUP_IP + groupid);
         JedisUtils.del(Constants.GROUP_CHATTING + groupid);
+        JedisUtils.setDel(Constants.GROUP_LIST+groupIp, groupid);
     }
     
     public static void deletegroupChatMsg(String uid)
@@ -598,12 +618,54 @@ public class RedisManager
     }
 
 
-
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：
+      * @author zhouxue
+      * @param channelid
+      * @return [参数说明]
+      * @return boolean [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
     public static boolean isChannelActive(String channelid)
     {
         // TODO Auto-generated method stub
         String ip = getGroupIp(channelid);
         return !StringUtils.isEmpty(ip);
+    }
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述： 获取服务器上正在对讲的频道
+      * @author zhouxue
+      * @param nsName
+      * @return [参数说明]
+      * @return List<String> [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public static List<String> getChattingGroups(
+            String nsName)
+    {
+        // TODO Auto-generated method stub
+        Set<String> sets=JedisUtils.getSet(Constants.GROUP_LIST+nsName);
+        if(sets==null){
+            return null;
+        }
+        List<String> list=new ArrayList<>();
+        for (Iterator<String> it = sets.iterator(); it.hasNext();) {
+            String v = it.next();
+            list.add(v);
+        }
+        
+        return list;
+    }
+    public static void deleteGroupList(String nsName)
+    {
+        // TODO Auto-generated method stub
+        JedisUtils.del(Constants.GROUP_LIST+nsName);
     }
     
 }

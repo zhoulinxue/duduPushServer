@@ -30,7 +30,7 @@ public class Constants {
 	public static final String ID = "ID";
 	public static final String ON_LIN_USER = "onLine";
 	public static final String USER_ISONLINE = "gd.";
-	public static final String GROUP_IP = "group_ip";
+	public static final String GROUP_IP = "group_ip.";
 	public static final String USER_TOKEN="app.token.";
    
     public static final String ZK_DATA_PATH ="/tmp_root_path";
@@ -60,5 +60,6 @@ public class Constants {
     public static String NS_IP_PORT= "ns.";
     public static String CHAT_WITH_FRIEND="ct.";
     public static String GROUP_CHATTING="ctg.";
-    public static String ND_SERVER_IP="nd."; 
+    public static String ND_SERVER_IP="nd.";
+    public static String GROUP_LIST="group_list"; 
 }

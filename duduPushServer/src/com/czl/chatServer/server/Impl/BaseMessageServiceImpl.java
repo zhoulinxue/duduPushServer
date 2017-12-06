@@ -14,6 +14,7 @@ import com.czl.chatServer.netty.NSClient;
 import com.czl.chatServer.netty.decoder.NsClientMessageDecoder;
 import com.czl.chatServer.netty.encode.NettyMessageServerEncoder;
 import com.czl.chatServer.netty.handler.NsClientHandler;
+import com.czl.chatServer.netty.handler.ShortClientHandler;
 import com.czl.chatServer.server.BaseMessageServer;
 import com.czl.chatServer.utils.RedisManager;
 
@@ -238,7 +239,7 @@ public class BaseMessageServiceImpl implements BaseMessageServer
                                     new IdleStateHandler(120, 30, 120,
                                             TimeUnit.MINUTES));
                             ch.pipeline().addLast("ClientShortHandler",
-                                    new NsClientHandler(mymsg));
+                                    new ShortClientHandler(mymsg));
                             
                         }
                     });
@@ -260,14 +261,6 @@ public class BaseMessageServiceImpl implements BaseMessageServer
         }
         return message;
         
-    }
-    
-    public void sendtoOtherNsData(String ip, final NettyMessage mymsg,
-            NettyMessage respone)
-    {
-        NSClient client = new NSClient(ip,
-                Integer.parseInt(RedisManager.getNodeport(ip)), mymsg);
-        client.start();
     }
     
     @Override
@@ -333,7 +326,6 @@ public class BaseMessageServiceImpl implements BaseMessageServer
     public String getUserIdFromChannel(Channel ctx)
     {
         // TODO Auto-generated method stub
-        @SuppressWarnings("deprecation")
         String aa = ctx.attr(Constants.KEY_USER_ID).get();
         if (aa != null)
         {
@@ -364,7 +356,7 @@ public class BaseMessageServiceImpl implements BaseMessageServer
         }
         else
         {
-            NettyMessage message = buildMessage(AppServerType.ON_LINE, uid);
+            NettyMessage message = buildMessage(AppServerType.ON, uid);
             sendMessage(message, ctx);
         }
     }

@@ -1,6 +1,5 @@
 package com.czl.chatServer.server.Impl;
 
-import com.czl.chatServer.ChatType;
 import com.czl.chatServer.NSConfig;
 import com.czl.chatServer.ServerType;
 import com.czl.chatServer.netty.NettyServer;

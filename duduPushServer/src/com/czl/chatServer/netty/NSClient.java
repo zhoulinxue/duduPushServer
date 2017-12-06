@@ -8,11 +8,11 @@ import java.util.concurrent.TimeUnit;
 import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatClient.utils.Log;
 import com.czl.chatServer.Constants;
+import com.czl.chatServer.ServerType;
 import com.czl.chatServer.netty.core.NodeServerType;
 import com.czl.chatServer.netty.decoder.NsClientMessageDecoder;
 import com.czl.chatServer.netty.encode.NettyMessageServerEncoder;
 import com.czl.chatServer.netty.handler.NsClientHandler;
-import com.mysql.jdbc.ReplicationConnection;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
@@ -54,8 +54,8 @@ public class NSClient extends Thread
     public Channel channel;
     
     private NettyMessage message;
-
-    
+    private ServerType type;
+    private NSClient client;
     /**
      * 
      * @param msIp
@@ -65,11 +65,13 @@ public class NSClient extends Thread
      * @param NsName
      *            本机的 基本信息 ip:port:nodePort
      */
-    public NSClient(String msIp, int msPort, NettyMessage message)
+    public NSClient(String msIp, int msPort, NettyMessage message, ServerType type)
     {
         this.msIp = msIp;
         this.msPort = msPort;
         this.message = message;
+        this.type=type;
+        client=this;
     }
     
     public void connect()
@@ -99,11 +101,10 @@ public class NSClient extends Thread
                             ch.pipeline().addLast("MessageEncoder",
                                     new NettyMessageServerEncoder());
                             ch.pipeline().addLast("readTimeoutHandler",
-                                    new IdleStateHandler(30, 30, 30,
-                                            TimeUnit.MINUTES));
+                                    new IdleStateHandler(60, 60, 60,
+                                            TimeUnit.SECONDS));
                             ch.pipeline().addLast("NsClientHandler",
-                                    new NsClientHandler(message));
-                            
+                                    new NsClientHandler(NSClient.this,type));                           
                         }
                     });
             // 发起异步连接操作
@@ -128,7 +129,7 @@ public class NSClient extends Thread
         }
     }
     
-    private void reconnect()
+    public void reconnect()
     {
         // TODO Auto-generated method stub
         if (isConnected)
@@ -177,6 +178,26 @@ public class NSClient extends Thread
         {
             Log.e("channel ==null");
         }
+    }
+
+    public NettyMessage getMessage()
+    {
+        return message;
+    }
+
+    public void setMessage(NettyMessage message)
+    {
+        this.message = message;
+    }
+
+    public boolean isConnected()
+    {
+        return isConnected;
+    }
+
+    public void setConnected(boolean isConnected)
+    {
+        this.isConnected = isConnected;
     }
     
 }

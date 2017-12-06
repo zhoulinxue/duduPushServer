@@ -3,11 +3,8 @@ package com.czl.chatServer.netty.handler;
 import java.io.UnsupportedEncodingException;
 
 import com.czl.chatClient.bean.NettyMessage;
-import com.czl.chatServer.ChatType;
 import com.czl.chatServer.Constants;
-import com.czl.chatServer.ServerType;
 import com.czl.chatServer.netty.NSClient;
-
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -26,18 +23,18 @@ import io.netty.util.ReferenceCountUtil;
  * Copyright: Copyright (c) zhouxue Co.,Ltd. 2017
  * Company:"zhouxue" org
  */
-public class NsClientHandler extends ChannelInboundHandlerAdapter
+public class ShortClientHandler extends ChannelInboundHandlerAdapter
 {
-    private NSClient client;
-    private ServerType type;
-
-        public NsClientHandler(NSClient client,ServerType type)
+  
+    
+    private NettyMessage msg;
+    
+    public ShortClientHandler(NettyMessage msg)
     {
         super();
-        this.client = client;
-        this.type=type;
+        this.msg = msg;
     }
-    
+
     /**
      * Calls {@link ChannelHandlerContext#fireChannelActive()} to forward to the
      * next {@link ChannelHandler} in the {@link ChannelPipeline}.
@@ -47,9 +44,12 @@ public class NsClientHandler extends ChannelInboundHandlerAdapter
     public void channelActive(ChannelHandlerContext ctx) throws Exception
     {
         super.channelActive(ctx);
-        if (client!=null&&client.getMessage() != null)
+     
+
+        // Demo.ctx=ctx;
+        if (msg != null)
         {
-            ctx.writeAndFlush(client.getMessage());
+            ctx.writeAndFlush(msg);
         }
     }
     
@@ -58,10 +58,6 @@ public class NsClientHandler extends ChannelInboundHandlerAdapter
     {
         // TODO Auto-generated method stub
         super.channelInactive(ctx);
-        if(type==ServerType.AppServer){
-            client.setConnected(false);
-            client.reconnect();
-        }
     }
     
     /**
@@ -80,7 +76,7 @@ public class NsClientHandler extends ChannelInboundHandlerAdapter
             byte head1 = message.getHeader1();
             if (head0 == 48 && head1 == 48)
             {
-                 System.out.println("NS向MS注册成功2");
+                // System.out.println("NS向MS注册成功2");
             }
             else
             {
@@ -121,13 +117,19 @@ public class NsClientHandler extends ChannelInboundHandlerAdapter
             if (IdleStateEvent.class.isAssignableFrom(evt.getClass()))
             {
                 IdleStateEvent event = (IdleStateEvent) evt;
-                if (event.state() == IdleState.READER_IDLE||event.state() == IdleState.WRITER_IDLE)
+                if (event.state() == IdleState.READER_IDLE)
                 {
                     System.out.println("ns客户端read idle");
+                    ctx.close();
+                }
+                else if (event.state() == IdleState.WRITER_IDLE)
+                {
                     // System.out.println("ns客户端write idle,给MS发送心跳");
                     NettyMessage heatBeat = buildHeatBeat();
                     ctx.writeAndFlush(heatBeat);
-                }              
+                }
+                // else if (event.state() == IdleState.ALL_IDLE)
+                // System.out.println("ns客户端all idle");
             }
         }
         catch (Exception e)

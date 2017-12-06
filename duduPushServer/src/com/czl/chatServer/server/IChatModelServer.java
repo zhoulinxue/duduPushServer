@@ -2,10 +2,8 @@ package com.czl.chatServer.server;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
-import java.util.Map;
 
 import com.czl.chatClient.bean.DuduPosition;
-import com.czl.chatClient.bean.DuduUser;
 import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatServer.ChatType;
 import com.czl.chatServer.UserStatus;

@@ -8,7 +8,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.czl.chatClient.AppServerType;
 import com.czl.chatClient.bean.DuduPosition;
-import com.czl.chatClient.bean.DuduUser;
 import com.czl.chatClient.bean.Groupbean;
 import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatClient.utils.Log;
@@ -39,10 +38,6 @@ public class ChattingModelManager extends BaseMessageServiceImpl
     
     //一对一 对讲业务
     private IFriendChatLifeCycle friendChatServer = new FriendChatServerImpl();
-    
-    private IChatModelServer friendModelServer = new FriendChatModel();
-    
-    private IChatModelServer groupModelServer = new GroupChatModel();
     
     private Map<String, IChatModelServer> friendChatModels = new ConcurrentHashMap<>();
     

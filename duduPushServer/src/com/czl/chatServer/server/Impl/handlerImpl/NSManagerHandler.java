@@ -1,8 +1,4 @@
 package com.czl.chatServer.server.Impl.handlerImpl;
-
-import java.util.List;
-import java.util.StringTokenizer;
-
 import com.czl.chatClient.AppServerType;
 import com.czl.chatClient.bean.DuduPosition;
 import com.czl.chatClient.bean.NettyMessage;
@@ -46,7 +42,7 @@ public class NSManagerHandler extends BaseMessageServiceImpl
                 }
                 else
                 {
-                    ipport = getRandom();
+                    ipport = RedisManager.getRandom();
                 }
                 String[] nsIpandPort = null;
                 Log.e(uid + ipport);
@@ -108,23 +104,13 @@ public class NSManagerHandler extends BaseMessageServiceImpl
             System.out.println("NS频道:" + ipandPort);
         }
        if(StringUtils.isEmpty(ipandPort)){
-            ipandPort = getRandom();
+            ipandPort = RedisManager.getRandom();
             System.out.println("NS随机:" + ipandPort);
        }
         return ipandPort;
     }
     
-    private String getRandom()
-    {
-        // TODO Auto-generated method stub
-        List<String> list=RedisManager.getNSList();
-        if(list==null||list.size()==0){
-            return null;
-        }
-        int ran = (int)(Math.random() * (list.size()-1));
-        String[] ipandPort=list.get(ran).split(Constants.IP_PORT_SEPORATE);
-        return ipandPort[0]+Constants.IP_PORT_SEPORATE+ipandPort[1];
-    }
+    
     
     /**
      * 

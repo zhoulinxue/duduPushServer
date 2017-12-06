@@ -222,7 +222,7 @@ public class NettyServer extends Thread
             case AppServer:
                 Log.e("服务启动成功_绑定端口" + serverport);
                 client = new NSClient(config.getServerip(),
-                        Integer.parseInt(config.getNodeport()), buildLoginReq());
+                        Integer.parseInt(config.getNodeport()), buildLoginReq(),type);
                 client.start();
                 break;
             
