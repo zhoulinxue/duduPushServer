@@ -19,20 +19,27 @@ public final class NettyMessageEncoder extends MessageToByteEncoder<NettyMessage
 
 	@Override
 	protected void encode(ChannelHandlerContext ctx, NettyMessage msg, ByteBuf sendBuf) throws Exception {
-//		byte[] msgId = null;
-//		if (msg.getMessageId() != null) {
-//			msgId = msg.getMessageId();
-//		} else {
-//			msgId = StringUtils.getRandomMsgId();
-//		}
-//		sendBuf.writeByte(msgId.length);
-//		sendBuf.writeBytes(msgId);
+		byte[] msgId = null;
+		if (msg.getMessageId() != null) {
+			msgId = msg.getMessageId();
+		} else {
+			msgId = StringUtils.getRandomMsgId();
+			msg.setMessageId(msgId);
+		}
+		sendBuf.writeByte(msgId.length);
+		sendBuf.writeBytes(msgId);
 		sendBuf.writeByte(msg.getHeader0());
 		sendBuf.writeByte(msg.getHeader1());
 		AppServerType type= AppServerType.ofCommand(msg.getHeader());
 		if (AppServerType.byteValus().contains(type)) {
 			sendBuf.writeInt(msg.getCtxLength());
 			sendBuf.writeBytes(msg.getContent());
+		}else if(AppServerType.AU==AppServerType.ofCommand(msg.getHeader())){
+			sendBuf.writeInt(msg.getCtxLength());
+			sendBuf.writeBytes(msg.getContent());
+			byte[] cobtye=msg.getbyteConobj();
+			sendBuf.writeInt(cobtye.length);
+			sendBuf.writeBytes(cobtye);
 		}else {
 			sendBuf.writeByte(124);
 			sendBuf.writeBytes(msg.getContent());

@@ -2,7 +2,6 @@ package com.czl.chatClient.handler;
 
 import java.io.UnsupportedEncodingException;
 
-import com.czl.chatClient.Constants;
 import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatClient.login.onConnetCallBack;
 import com.czl.chatClient.receiver.RecivMessageCallBack;

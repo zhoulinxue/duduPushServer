@@ -3,7 +3,6 @@ package com.czl.chatServer.netty.handler;
 import java.io.UnsupportedEncodingException;
 
 import com.czl.chatClient.bean.NettyMessage;
-import com.czl.chatServer.ChatType;
 import com.czl.chatServer.Constants;
 import com.czl.chatServer.ServerType;
 import com.czl.chatServer.netty.NSClient;

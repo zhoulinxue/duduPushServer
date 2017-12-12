@@ -10,6 +10,8 @@ public enum AppServerType
 {
     // 登录
     LD("LD", true),
+    //获取业务服务器地址
+    AC("AC"),
     // 个人呼叫
     FS("FS"),
     // 接受 对讲
@@ -24,8 +26,6 @@ public enum AppServerType
     EG("EG", true),
     // 邀请对讲
     GM("GM"),
-    // 在线
-    ON_LINE("ON"),
     // 单对单 字节流
     SM("SM"),
     // 群音频数据
@@ -36,7 +36,6 @@ public enum AppServerType
     ET("ET"),
     // 取消个人对讲 邀请
     FE("FE"),
-    
     // 消息回复
     RETURN_TAG("00"),
     // 测试链接
@@ -59,7 +58,7 @@ public enum AppServerType
     CG("CG"),
     // 发送掉线期间的 语音
     RM("RM"),
-    
+
     // 获取用户 位置
     PP("PP"),
     // 测试链接
@@ -71,7 +70,7 @@ public enum AppServerType
     // 心跳
     HEART_BEAT("CK", true),
     // 报错
-    EX_TYPE("EX", true),
+    EX("EX", true),
     // 跨服务器 进频道标示
     GB("GB"),
     // 用户进入频道
@@ -120,55 +119,55 @@ public enum AppServerType
     FM("FM"),
     // 退出登陆
     OU("OU"),
-    // 跨服 异常登陆
-    RELOGIN_OTHERNS_TYPE("CL", true),
     // 语音消息
     AU("AU"), OK("OK"),
-    // 向其他服务器的用户发邀请
-    INVITE_USER_ON_OTHER_NS("TM");
-    
+    // NS 登录MS
+    LC("LC"),
+    //退出登录
+    LQ("LQ");
+
     private AppServerType(String headerString)
     {
         this.headerString = headerString;
     }
-    
+
     private String headerString;
-    
+
     private boolean isSystemType = false;
-    
+
     public String getHeaderString()
     {
         return headerString;
     }
-    
+
     public void setHeaderString(String headerString)
     {
         this.headerString = headerString;
     }
-    
+
     private AppServerType(String headerString, boolean isSystemType)
     {
         this.headerString = headerString;
         this.isSystemType = isSystemType;
     }
-    
+
     public boolean isSystemType()
     {
         return isSystemType;
     }
-    
+
     public void setSystemType(boolean isSystemType)
     {
         this.isSystemType = isSystemType;
     }
-    
+
     @Override
     public String toString()
     {
         // TODO Auto-generated method stub
         return headerString;
     }
-    
+
     public static AppServerType ofCommand(String header)
     {
         // TODO Auto-generated method stub
@@ -184,7 +183,7 @@ public enum AppServerType
         }
         return null;
     }
-    
+
     public static boolean isCommand(String header)
     {
         // TODO Auto-generated method stub
@@ -195,7 +194,7 @@ public enum AppServerType
         }
         return false;
     }
-    
+
     private static AppServerType getCommand(String header)
     {
         if (!StringUtils.isEmpty(header))
@@ -210,7 +209,7 @@ public enum AppServerType
         }
         return null;
     }
-    
+
     public static List<AppServerType> allvalues()
     {
         List<AppServerType> typeServer = new ArrayList<>();
@@ -220,7 +219,7 @@ public enum AppServerType
         }
         return typeServer;
     }
-    
+
     public static boolean contains(String header, RecivMessageCallBack callBack)
     {
         if (isCommand(header))
@@ -233,7 +232,7 @@ public enum AppServerType
         }
         return false;
     }
-    
+
     public static List<AppServerType> P2PValus()
     {
         // TODO Auto-generated method stub
@@ -248,7 +247,7 @@ public enum AppServerType
         p2pvalus.add(SM);
         return p2pvalus;
     }
-    
+
     public static List<AppServerType> GroupValus()
     {
         // TODO Auto-generated method stub
@@ -267,7 +266,7 @@ public enum AppServerType
         gvalus.add(NC);
         return gvalus;
     }
-    
+
     public static List<AppServerType> othersValus()
     {
         // TODO Auto-generated method stub
@@ -277,16 +276,28 @@ public enum AppServerType
         allvalus.removeAll(byteValus());
         return allvalus;
     }
-    
+
     public static List<AppServerType> byteValus()
     {
         // TODO Auto-generated method stub
         List<AppServerType> bytevalus = new ArrayList<>();
         bytevalus.add(SG);
         bytevalus.add(SM);
-        bytevalus.add(AU);
         bytevalus.add(FI);
         return bytevalus;
     }
-    
+
+    public static List<AppServerType> zvaValues()
+    {
+        // TODO Auto-generated method stub
+        List<AppServerType> zvavalus = new ArrayList<>();
+        zvavalus.add(RETURN_TAG);
+        zvavalus.add(RS);
+        zvavalus.add(AU);
+        zvavalus.add(FM);
+        zvavalus.add(PU);
+        zvavalus.add(IM);
+        return zvavalus;
+    }
+
 }

@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 
 import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatServer.Constants;
-import com.czl.chatServer.netty.NSClient;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;

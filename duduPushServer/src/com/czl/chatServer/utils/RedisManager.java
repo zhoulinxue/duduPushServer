@@ -27,6 +27,9 @@ public class RedisManager
     public static Channel getChannelByUid(String uid)
     {
         Log.e("获取连接" + uid);
+        if(StringUtils.isEmpty(uid)){
+            return null;
+        }
         return channelMap.get(uid);
     }
     /**
@@ -53,28 +56,67 @@ public class RedisManager
 
     /**
      * 
-     * @param currNsIpPort
-     * @return
+      * 功能简述：
+      * 功能详细描述：
+      * @author zhouxue
+      * @param ipport
+      * @return [参数说明]
+      * @return boolean [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
      */
 
     public static boolean nsShutDown(String currNsIpPort) {
-        Log.e("NS:"+currNsIpPort+"已经挂了..");
+      
+//        String currNsIpPort=ipport.replace(Constants.IP_PORT_SEPORATE, Constants.SEPORATE);        
         try {
-            String key = Constants.NS_IP + currNsIpPort;
-            String sum = JedisUtils.get(key);
-            if (StringUtils.isEmpty(sum)) {
-                sum = "0";
-            }
-            JedisUtils.del(key);
-            JedisUtils.del(Constants.THIS_NS_ONLIN + currNsIpPort);
-            JedisUtils.setDel(Constants.NS_LIST, currNsIpPort);
+            Log.e("NS:"+currNsIpPort+"已经挂了.."+(Constants.THIS_NS_ONLIN + currNsIpPort)+"__!!"+"__!!"+Constants.NS_LIST);          
+            deleteOnLineUser(currNsIpPort);           
+            JedisUtils.setDel(Constants.NS_LIST, currNsIpPort);                      
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }
         return true;
     }
-
-    
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：移除都掉线 NS 服务器
+      * @author zhouxue
+      * @param currNsIpPort [参数说明]
+      * @return void [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    private static void deleteOnLineUser(String currNsIpPort)
+    {
+        // TODO Auto-generated method stub
+        deleteOnUsers(currNsIpPort);        
+        JedisUtils.del(Constants.THIS_NS_ONLIN + currNsIpPort);
+        JedisUtils.del(Constants.NS_IP + currNsIpPort);
+    }
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述： 移除掉线服务器 上的 用户
+      * @author zhouxue
+      * @param currNsIpPort [参数说明]
+      * @return void [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    private static void deleteOnUsers(String currNsIpPort)
+    {
+        // TODO Auto-generated method stub
+         Set<String> set=JedisUtils.getSet(Constants.THIS_NS_ONLIN+currNsIpPort);
+         if(set==null){
+             return;
+         }
+         for (Iterator<String> it = set.iterator(); it.hasNext();) {
+             String v = it.next();
+             app2NSLoginout(v, currNsIpPort);
+         }
+    }
     /**
      * 获取NS服务器 的监听端口号
      * 
@@ -285,6 +327,7 @@ public class RedisManager
     public static boolean APP2NSRegister(String userId, String currNsIpPort)
     {
         // System.out.println("登陆成功" + userId);
+//        String currNsIpPort=ipport.replace(Constants.IP_PORT_SEPORATE, Constants.SEPORATE);
         try
         {
             String key = Constants.NS_IP + currNsIpPort;
@@ -371,11 +414,12 @@ public class RedisManager
             }
             else
             {
-                if (Integer.valueOf(sum) < 0)
+                if (Integer.valueOf(sum) < 1)
                 {
                     sum = "1";
                 }
             }
+            if(getNSList().contains(currNsIpPort))
             JedisUtils.set(key, String.valueOf(Integer.valueOf(sum) - 1), 0);
         }
         catch (Exception e)
@@ -383,7 +427,6 @@ public class RedisManager
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        deleteCalling(userId, null);
         JedisUtils.setDel(Constants.ON_LIN_USER, userId);
         JedisUtils.setDel(Constants.THIS_NS_ONLIN + currNsIpPort, userId);
         JedisUtils.del(Constants.USER_ISONLINE + userId);
@@ -392,44 +435,7 @@ public class RedisManager
         return true;
     }
     
-    /**
-     * 
-      * 功能简述：
-      * 功能详细描述：以主叫ID 删除 呼叫信息
-      * @author zhouxue
-      * @param userid 主叫ID
-      * @param myId [参数说明] 被叫ID
-      * @return void [返回类型说明]
-      * @exception throws [异常类型] [异常说明]
-      * @see [类、类#方法、类#成员]
-     */
-    public static void deleteCalling(String userid, String myId)
-    {
-        // TODO Auto-generated method stub
-        String callerid = getCallingMsg(userid);
-        JedisUtils.del(Constants.CALL_USER + userid);
-        if (myId == null || myId.equals(callerid))
-        {
-            JedisUtils.del(Constants.CALLED + callerid);
-        }
-    }
-    
-    /**
-     * 
-      * 功能简述：
-      * 功能详细描述：获取被叫ID
-      * @author zhouxue
-      * @param userid
-      * @return [参数说明]
-      * @return String [返回类型说明]
-      * @exception throws [异常类型] [异常说明]
-      * @see [类、类#方法、类#成员]
-     */
-    public static String getCallingMsg(String userid)
-    {
-        // TODO Auto-generated method stub
-        return JedisUtils.get(Constants.CALL_USER + userid);
-    }
+
     
     /**
      * 删除用户信息
@@ -483,8 +489,8 @@ public class RedisManager
         {
             
             Transaction t = jedis.multi();// 开始事务
-            t.set(Constants.CALL_USER + fuid, uid);
-            t.set(Constants.CALLED + uid, fuid);
+            t.set(Constants.CALL_USER + uid, fuid);
+            t.set(Constants.CALLED + fuid, uid);
             List<Object> list = t.exec();
             return list.size() == 2;
         }
@@ -523,7 +529,7 @@ public class RedisManager
         {
             JedisUtils.set(Constants.CHAT_WITH_FRIEND + selfid, friendid, 0);
             JedisUtils.set(Constants.CHAT_WITH_FRIEND + friendid, selfid, 0);
-            deleteCalling(friendid, selfid);
+            deleteCallingByCalled(selfid,friendid);
         }
         catch (Exception e)
         {
@@ -662,10 +668,145 @@ public class RedisManager
         
         return list;
     }
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：删除正在服务器上对讲的 频道集合
+      * @author zhouxue
+      * @param nsName [参数说明]
+      * @return void [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
     public static void deleteGroupList(String nsName)
     {
         // TODO Auto-generated method stub
         JedisUtils.del(Constants.GROUP_LIST+nsName);
+    }
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述： 缓存个人信息到redis
+      * @author zhouxue
+      * @param ctx
+      * @param user [参数说明]
+      * @return void [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public static void app2NSLogin(ChannelHandlerContext ctx, DuduUser user)
+    {
+        // TODO Auto-generated method stub
+        putChannel(user.getUserid(), ctx.channel());
+        putUserInfo(ctx, user);
+    }
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：通过对讲双方 删除  对讲锁定信息
+      * @author zhouxue
+      * @param calledId
+      * @param callerId [参数说明]
+      * @return void [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public static void deleteCallingByCalled(String calledId,
+            String callerId)
+    {
+        if(StringUtils.isEmpty(callerId)||StringUtils.isEmpty(calledId)){
+            return;
+        }
+        // TODO Auto-generated method stub
+        String cuid=getCallerId(calledId);
+        String muid=getCalledId(callerId);
+        if(cuid.equals(callerId)){
+            if(muid.equals(calledId)){
+                deleteCalled(calledId);
+            }
+            deleteCaller(callerId);   
+        }  
+    }
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：获取 被邀请者id
+      * @author zhouxue
+      * @param callerId
+      * @return [参数说明]
+      * @return String [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public static String getCalledId(String callerId)
+    {
+        // TODO Auto-generated method stub
+        return JedisUtils.get(Constants.CALL_USER+callerId);
+    }
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：获取 发起者对象的id 
+      * @author zhouxue
+      * @param calledId
+      * @return [参数说明]
+      * @return String [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public static String getCallerId(String calledId)
+    {
+        // TODO Auto-generated method stub
+        return JedisUtils.get(Constants.CALLED+calledId);
+    }
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：删除对讲 被邀请者
+      * @author zhouxue
+      * @param calledId [参数说明]
+      * @return void [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    private static void deleteCalled(String calledId)
+    {
+        // TODO Auto-generated method stub
+        JedisUtils.del(Constants.CALLED+calledId);
+    }
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：删除对讲发起者
+      * @author zhouxue
+      * @param callerId [参数说明]
+      * @return void [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    private static void deleteCaller(String callerId)
+    {
+        // TODO Auto-generated method stub
+        JedisUtils.del(Constants.CALL_USER+callerId);
+    }
+    /**
+     * 
+      * 功能简述： 
+      * 功能详细描述： 删除对讲信息
+      * @author zhouxue
+      * @param edUser
+      * @param fuid [参数说明]
+      * @return void [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public static void deleteFriendChatInfo(String edUser)
+    {
+        // TODO Auto-generated method stub
+        String chattingid=getChatwithFriend(edUser);
+        JedisUtils.del(Constants.CHAT_WITH_FRIEND+edUser);
+        if(!StringUtils.isEmpty(chattingid))
+        JedisUtils.del(Constants.CHAT_WITH_FRIEND+chattingid);
     }
     
 }

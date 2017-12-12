@@ -55,7 +55,6 @@ public class NSClient extends Thread
     
     private NettyMessage message;
     private ServerType type;
-    private NSClient client;
     /**
      * 
      * @param msIp
@@ -71,7 +70,6 @@ public class NSClient extends Thread
         this.msPort = msPort;
         this.message = message;
         this.type=type;
-        client=this;
     }
     
     public void connect()

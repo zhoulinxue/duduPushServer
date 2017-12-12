@@ -45,6 +45,7 @@ public class ChattingModelManager extends BaseMessageServiceImpl
     
     @Override
     public void chatByte(ChannelHandlerContext ctx, NettyMessage msg)
+            throws UnsupportedEncodingException
     {
         // TODO Auto-generated method stub
         IChatModelServer ser = null;
@@ -52,16 +53,19 @@ public class ChattingModelManager extends BaseMessageServiceImpl
         {
             case SM:
                 ser = friendChatModels.get(getUserIdFromChannel(ctx));
-                ser.chatByte(ctx, msg);
+                
                 break;
             case SG:
-                ser = groupChatModels.get(getUserIdFromChannel(ctx));
-                ser.chatByte(ctx, msg);
+                ser = groupChatModels.get(
+                        RedisManager.getChatInGroup(getUserIdFromChannel(ctx)));
+                
                 break;
             
             default:
                 break;
         }
+        if (ser != null)
+            ser.chatByte(ctx, msg);
     }
     
     @Override
@@ -73,6 +77,7 @@ public class ChattingModelManager extends BaseMessageServiceImpl
         IChatModelServer server = null;
         String[] gsdata = getUserDataFromMsg(msg);
         boolean isbusy = userIsBusy(ctx, msg);
+        Log.e("isBusy" + isbusy);
         switch (type)
         {
             case GS:
@@ -108,8 +113,11 @@ public class ChattingModelManager extends BaseMessageServiceImpl
                     boolean isSucess = server.creatChat(ctx, msg);
                     if (isSucess)
                     {
-                        friendChatModels.put(getUserIdFromChannel(ctx), server);
-                        friendChatServer.invitesFriend(ctx, msg);
+                        boolean isInvited = friendChatServer.invitesFriend(ctx,
+                                msg);
+                        if (isInvited)
+                            friendChatModels.put(getUserIdFromChannel(ctx),
+                                    server);
                     }
                 }
                 break;
@@ -271,10 +279,26 @@ public class ChattingModelManager extends BaseMessageServiceImpl
     }
     
     @Override
-    public void chatbyteEnd(ChannelHandlerContext ctx, NettyMessage msg)
+    public void chatbyteEnd(ChannelHandlerContext ctx, NettyMessage msg)throws UnsupportedEncodingException
     {
         // TODO Auto-generated method stub
-        
+        IChatModelServer  server=null;
+        String uid=getUserIdFromChannel(ctx);
+        switch (msg.getAppServerType())
+        {
+            case ET:
+                server=friendChatModels.get(uid);
+                break;
+            case GT:
+                server=groupChatModels.get(RedisManager.getChatInGroup(uid));
+                break;
+            
+            default:
+                break;
+        }
+        if(server!=null){
+            server.chatbyteEnd(ctx, msg);
+        }
     }
     
     @Override
@@ -314,9 +338,15 @@ public class ChattingModelManager extends BaseMessageServiceImpl
         switch (msg.getAppServerType())
         {
             case FS:
-                
-                return !StringUtils
-                        .isEmpty(RedisManager.getCallingMsg(gsdata[2]));
+                boolean isbusy = false;
+                String friendid = RedisManager.getCallerId(gsdata[2]);
+                isbusy = !StringUtils.isEmpty(friendid);
+                if (!isbusy)
+                {
+                    isbusy = !StringUtils
+                            .isEmpty(RedisManager.getCalledId(gsdata[2]));
+                }
+                return isbusy;
             
             case GS:
                 Groupbean groupbean = com.alibaba.fastjson.JSONObject
@@ -412,7 +442,9 @@ public class ChattingModelManager extends BaseMessageServiceImpl
                 if (list != null && list.size() > 1)
                 {
                     server.userOffline(position);
-                }else {
+                }
+                else
+                {
                     userQuit(position.getUserid());
                 }
             }

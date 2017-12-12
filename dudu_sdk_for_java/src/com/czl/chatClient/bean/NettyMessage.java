@@ -3,8 +3,10 @@ package com.czl.chatClient.bean;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 
+import com.alibaba.fastjson.JSONObject;
 import com.czl.chatClient.AppServerType;
 import com.czl.chatClient.Constants;
+import com.czl.chatClient.utils.Log;
 import com.czl.chatClient.utils.StringUtils;
 
 public final class NettyMessage implements Serializable {
@@ -19,6 +21,8 @@ public final class NettyMessage implements Serializable {
 	private byte[] fromUerId;
 	private byte[] GtOrEtmsg;
 	private byte[] messageId;
+	private String[] data;
+	private NettyContent conobj;
 
 	public NettyMessage() {
 	}
@@ -130,7 +134,7 @@ public final class NettyMessage implements Serializable {
 	}
 
 	public AppServerType getAppServerType() {
-		return AppServerType.valueOf(getHeader());
+		return AppServerType.ofCommand(getHeader());
 	}
 
 	public String getStringFromUerId() {
@@ -161,4 +165,72 @@ public final class NettyMessage implements Serializable {
 		}
 	}
 	
+	public String[] getUserDataFromMsg()
+    {
+        // TODO Auto-generated method stub
+	    if(data!=null){
+	        return data;
+	    }
+        try
+        {
+            data=(new String(getContent(), Constants.CONTENT_CHAR_SET))
+                    .split("\\|");
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return data;
+    }
+	public NettyContent getConobj()
+	{
+		if (conobj == null)
+		{
+			try
+			{
+				String mesgStr= new String(getContent(), Constants.CONTENT_CHAR_SET);
+				Log.e(mesgStr);
+				conobj = JSONObject.parseObject(mesgStr, NettyContent.class);
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+				return null;
+			}
+		}
+		return conobj;
+	}
+
+	public void setConobj(NettyContent conobj) {
+		this.conobj = conobj;
+	}
+	public byte[] getbyteConobj()
+	{
+		// TODO Auto-generated method stub
+		NettyContent content = getConobj();
+		String jsonStr = JSONObject.toJSONString(content);
+		return StringUtils.tobyte(jsonStr);
+	}
+	public void setConobj(byte[] nettyContent)
+	{
+		// TODO Auto-generated method stub
+		try
+		{
+			if (nettyContent == null)
+			{
+				return;
+			}
+			String nettyCon = StringUtils.toString(nettyContent);
+			if (!StringUtils.isEmpty(nettyCon))
+			{
+				System.err.println(nettyCon);
+				conobj = JSONObject.parseObject(nettyCon, NettyContent.class);
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
 }

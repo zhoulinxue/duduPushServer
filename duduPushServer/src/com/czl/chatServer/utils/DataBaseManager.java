@@ -42,7 +42,43 @@ public class DataBaseManager
             jdbcUtil.releaseConn();
         }
     }
-    
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：推送消息 回执
+      * @author zhouxue
+      * @param dataid
+      * @param status [参数说明]
+      * @return void [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public static void setStatus(String dataid, int status) {
+        String sql = "UPDATE logdb.iminfo SET status = ?  where dataid = ?";
+        List<Object> params = new ArrayList<Object>();
+        params.add(status);
+        params.add(dataid);
+        JdbcUtil jdbc = new JdbcUtil();
+        try {
+            jdbc.getConnection(DBName.logdb);
+            jdbc.updateByPreparedStatement(sql, params);
+            // System.out.println("update status OK!");
+        } catch (Exception e) {
+            System.err.println("update status error!");
+        } finally {
+            jdbc.releaseConn();
+        }
+    }
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：
+      * @author zhouxue 保存用户地址
+      * @param position [参数说明]
+      * @return void [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
     public static void writePosition(DuduPosition position) {
         JdbcUtil jdbcUtil = new JdbcUtil();
         // System.out.println(time.format(nowTime));
@@ -189,6 +225,35 @@ public class DataBaseManager
             return "";
         } finally {
             jdbcUtil.releaseConn();
+        }
+    }
+    /**
+     * 
+      * 功能简述：
+      * 功能详细描述：获取推送消息
+      * @author zhouxue
+      * @param uid
+      * @return [参数说明]
+      * @return List<Imbean> [返回类型说明]
+      * @exception throws [异常类型] [异常说明]
+      * @see [类、类#方法、类#成员]
+     */
+    public static List<Imbean> GetHandlerInfo(String uid) {
+        String sql = "SELECT dataid,type,fromid,fromname,fromlogourl,channelid,alert,sendtime,detail,markid,title FROM logdb.iminfo WHERE "
+                + "(toid =?" + " and (status = 1 OR status = 2 OR status = 0 )) ";
+        List<Object> params = new ArrayList<Object>();
+        params.add(uid);
+        // params.add("radionews");
+        JdbcUtil jdbc = new JdbcUtil();
+        try {
+            jdbc.getConnection(DBName.logdb);
+            return jdbc.findMoreRefResult(sql, params, Imbean.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Access database error!");
+            return null;
+        } finally {
+            jdbc.releaseConn();
         }
     }
     

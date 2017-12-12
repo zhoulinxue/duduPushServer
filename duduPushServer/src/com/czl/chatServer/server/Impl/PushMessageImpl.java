@@ -1,6 +1,9 @@
 package com.czl.chatServer.server.Impl;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.alibaba.fastjson.JSONObject;
 import com.czl.chatClient.AppServerType;
@@ -10,7 +13,9 @@ import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatClient.utils.Log;
 import com.czl.chatServer.Constants;
 import com.czl.chatServer.bean.BasePushMessage;
+import com.czl.chatServer.bean.Imbean;
 import com.czl.chatServer.server.IPushMessageServer;
+import com.czl.chatServer.utils.DataBaseManager;
 import com.czl.chatServer.utils.RedisManager;
 
 import io.netty.channel.Channel;
@@ -20,6 +25,7 @@ public class PushMessageImpl extends BaseMessageServiceImpl
         implements IPushMessageServer
 {
     private static PushMessageImpl instance;
+    ExecutorService cachedThreadPool = Executors.newCachedThreadPool(); 
     
     public static PushMessageImpl getInstance()
     {
@@ -86,10 +92,35 @@ public class PushMessageImpl extends BaseMessageServiceImpl
     }
     
     @Override
-    public void pushImMessages(Channel ctx, DuduUser myuser)
+    public void pushImMessages(Channel ctx, DuduUser user)
     {
         // TODO Auto-generated method stub
-        
+        cachedThreadPool.execute(new Runnable()
+        {
+            
+            @Override
+            public void run()
+            {
+                // TODO Auto-generated method stub
+                List<Imbean> list = DataBaseManager.GetHandlerInfo(user.getUserid());
+                if (list != null && list.size() != 0)
+                {
+                    try
+                    {
+                        NettyMessage pusmsgs = buildMessage(AppServerType.PU,
+                                JSONObject.toJSONString(list));
+                        System.out.println(pusmsgs.getContent().length + "推送内容长度");
+                        sendMessage(pusmsgs, ctx);
+                    }
+                    catch (UnsupportedEncodingException e)
+                    {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+       
     }
     
     @Override
@@ -103,7 +134,21 @@ public class PushMessageImpl extends BaseMessageServiceImpl
     public void pushMsgsCompelte(ChannelHandlerContext ctx, NettyMessage msg)
     {
         // TODO Auto-generated method stub
-        
+        String[] prstr = msg.getUserDataFromMsg();
+        List<String> idslist=JSONObject.parseArray(prstr[1], String.class);
+        cachedThreadPool.execute(new Runnable()
+        {
+            
+            @Override
+            public void run()
+            {
+                // TODO Auto-generated method stub
+                for(String id:idslist){
+                    DataBaseManager.setStatus(id, 3);
+                }
+            }
+        });
+       
     }
     
 }

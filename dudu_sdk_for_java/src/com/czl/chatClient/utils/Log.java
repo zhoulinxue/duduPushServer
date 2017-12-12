@@ -37,7 +37,7 @@ public class Log {
 	}
 	
 	public static void e(String tag,String msg){
-		if(DuduSDK.isDebug())
+		if(DuduSDK.isDebug)
 		System.out.println("Dudu_SDK___"+msg);
 	}
 

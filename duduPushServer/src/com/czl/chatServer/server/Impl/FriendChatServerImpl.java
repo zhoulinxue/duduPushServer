@@ -20,7 +20,7 @@ public class FriendChatServerImpl extends BaseMessageServiceImpl
 {
     
     @Override
-    public void invitesFriend(ChannelHandlerContext ctx, NettyMessage msg)
+    public boolean invitesFriend(ChannelHandlerContext ctx, NettyMessage msg)
             throws UnsupportedEncodingException
     {
         // TODO Auto-generated method stub
@@ -44,6 +44,11 @@ public class FriendChatServerImpl extends BaseMessageServiceImpl
                 arg0.setMessageId(msg.getMessageId());
                 sendtoOtherNsData(user.getIp(), arg0);
             }
+            return true;
+        }else {
+            NettyMessage message = buildMessage(AppServerType.FO, data[2]);
+            sendMessage(message, ctx.channel());
+            return false;
         }
     }
     
@@ -63,20 +68,9 @@ public class FriendChatServerImpl extends BaseMessageServiceImpl
         if (nbcapp != null)
         {
             mesg = buildMessage(AppServerType.ED, data[1]);
-            RedisManager.deleteCalling(myuid, friendId);
+            RedisManager.deleteFriendChatInfo(myuid);
             sendMessage(mesg, nbcapp);
-        }
-//        else
-//        {
-//            DuduUser frUser = RedisManager.IsOnline(friendId);
-//            if (frUser != null)
-//            {
-//                mesg = buildMessage(AppServerType.ED, data[1]);
-//                sendtoOtherNsData(frUser.getIp(), mesg);
-//            }
-//            
-//        }
-        
+        }        
     }
     
     @Override
@@ -121,7 +115,7 @@ public class FriendChatServerImpl extends BaseMessageServiceImpl
         // 查询好友在不在线,以及所在服务器
         DuduUser user = RedisManager.IsOnline(data[2]);
         
-        RedisManager.deleteCalling(getUserIdFromChannel(ctx), data[2]);
+//        RedisManager.deleteCallingByCalled(data[2], getUserIdFromChannel(ctx));
         
         Channel chanel = RedisManager.getChannelByUid(data[2]);
         if (chanel != null)

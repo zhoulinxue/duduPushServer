@@ -37,10 +37,28 @@ public class GroupChatModel extends BaseMessageServiceImpl
     private String groupId;
     
     @Override
-    public void chatByte(ChannelHandlerContext ctx, NettyMessage msg)
+    public void chatByte(ChannelHandlerContext ctx, NettyMessage msg)throws UnsupportedEncodingException
     {
         // TODO Auto-generated method stub
-        
+        String fromUserId = getUserIdFromChannel(ctx);
+        // 缓存到内存
+        if (userList != null && userList.size() > 0)
+        {// 已经有人在此ns上对讲
+            for (DuduPosition u : userList)
+            {
+                if (!fromUserId.equals(u.getUserid()))
+                {
+                    Channel nbcapp = RedisManager
+                            .getChannelByUid(u.getUserid());
+                    if (nbcapp != null)
+                    {
+                        msg.setFromUerId((fromUserId + endTag())
+                                .getBytes(Constants.CONTENT_CHAR_SET));
+                        nbcapp.writeAndFlush(msg);
+                    }
+                }
+            }
+        }
     }
     
     @Override
@@ -60,7 +78,7 @@ public class GroupChatModel extends BaseMessageServiceImpl
         if (!list.contains(new ChannelMember(newUsr.getUserid()))
                 && !Constants.CHANNEL_ID.equals(group.getGroupId()))
         {
-            NettyMessage outChannelmsg = buildMessage(AppServerType.EX_TYPE,
+            NettyMessage outChannelmsg = buildMessage(AppServerType.EX,
                     ServerException.NOT_IN_CHANNEL.toInfo());
             sendMessage(outChannelmsg, ctx.channel());
             return false;
@@ -138,7 +156,7 @@ public class GroupChatModel extends BaseMessageServiceImpl
     {
         // TODO Auto-generated method stub
         RedisManager.startChatInGroup(getUserIdFromChannel(ctx), groupId);
-        RedisManager.deleteCalling(getUserIdFromChannel(ctx), null);
+        RedisManager.deleteFriendChatInfo(getUserIdFromChannel(ctx));
         ChannalActiveusers activeusers = new ChannalActiveusers();
         activeusers.setActiveUsers(userList);
         activeusers.setChannelId(groupbean.getGroupId());
@@ -281,7 +299,7 @@ public class GroupChatModel extends BaseMessageServiceImpl
                 }
             }
             RedisManager.deleteGroupIp(groupid);
-           
+            
         }
         RedisManager.deletegroupChatMsg(uid);
     }
@@ -317,9 +335,23 @@ public class GroupChatModel extends BaseMessageServiceImpl
     }
     
     @Override
-    public void chatbyteEnd(ChannelHandlerContext ctx, NettyMessage msg)
+    public void chatbyteEnd(ChannelHandlerContext ctx, NettyMessage message)throws UnsupportedEncodingException
     {
         // TODO Auto-generated method stub
+        String fromUserId =getUserIdFromChannel(ctx);
+        if (userList != null && userList.size() > 0) {// 已经有人在此ns上对讲
+            for (DuduPosition u : userList) {
+                if (!fromUserId.equals(u.getUserid())) {
+                    Channel nbcapp = RedisManager.getChannelByUid(u.getUserid());
+                    System.out.println(
+                            "fromUserId=" + fromUserId + "转发的用户：" + u.getUserid() + "nbcapp=" + (nbcapp == null));
+                    if (nbcapp != null) {
+                        message.setFromUerId((fromUserId + endTag()).getBytes(Constants.CONTENT_CHAR_SET));
+                        nbcapp.writeAndFlush(message);
+                    }
+                }
+            }
+        }
         
     }
     
@@ -392,7 +424,8 @@ public class GroupChatModel extends BaseMessageServiceImpl
         // TODO Auto-generated method stub
         if (userList.contains(position))
         {
-            NettyMessage message = buildMessage(AppServerType.OF,position.getUserid());
+            NettyMessage message = buildMessage(AppServerType.OF,
+                    position.getUserid());
             for (DuduPosition po : userList)
             {
                 if (!po.getUserid().equals(position.getUserid()))

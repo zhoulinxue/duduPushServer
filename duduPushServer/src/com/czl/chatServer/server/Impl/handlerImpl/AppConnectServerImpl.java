@@ -1,6 +1,8 @@
 package com.czl.chatServer.server.Impl.handlerImpl;
 
 import java.io.UnsupportedEncodingException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.alibaba.fastjson.JSONObject;
 import com.czl.chatClient.AppServerType;
@@ -27,6 +29,8 @@ public class AppConnectServerImpl extends BaseMessageServiceImpl
 {
     private AppHandlerServer appHandler;
     
+    ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
+    
     public AppConnectServerImpl(AppHandlerServer appHandler)
     {
         super();
@@ -39,22 +43,13 @@ public class AppConnectServerImpl extends BaseMessageServiceImpl
     {
         try
         {
-        // TODO Auto-generated method stub
-        String uid = getUserIdFromChannel(ctx);
-        if (!StringUtils.isEmpty(uid))
-        {
-            NettyMessage msg = null;
-            String friendId = RedisManager.getChatwithFriend(uid);
-            String groupId=RedisManager.getChatInGroup(uid);
-            if (!StringUtils.isEmpty(friendId)||!StringUtils.isEmpty(groupId))
+            // TODO Auto-generated method stub
+            String uid = getUserIdFromChannel(ctx);
+            if (!StringUtils.isEmpty(uid))
             {
-                msg=buildMessage(AppServerType.OF, JSONObject.toJSONString(DataBaseManager.getUserFromDb(uid)));
-                
+                checkIsChatting(ctx, uid);
+                RedisManager.app2NSLoginout(uid, getCurrentIp(ctx.channel())+Constants.IP_PORT_SEPORATE+getCurrentPort(ctx.channel()));
             }
-            if (msg != null)
-                appHandler.channelRead(ctx, msg);  
-           
-           }
         }
         catch (Exception e)
         {
@@ -62,6 +57,23 @@ public class AppConnectServerImpl extends BaseMessageServiceImpl
             e.printStackTrace();
         }
         
+    }
+    
+    private void checkIsChatting(ChannelHandlerContext ctx, String uid) throws Exception
+    {
+        // TODO Auto-generated method stub
+        NettyMessage msg = null;
+        String friendId = RedisManager.getChatwithFriend(uid);
+        String groupId = RedisManager.getChatInGroup(uid);
+        if (!StringUtils.isEmpty(friendId) || !StringUtils.isEmpty(groupId))
+        {
+            msg = buildMessage(AppServerType.OF,
+                    JSONObject
+                            .toJSONString(DataBaseManager.getUserFromDb(uid)));
+            
+        }
+        if (msg != null)
+            appHandler.channelRead(ctx, msg);
     }
     
     @Override
@@ -116,8 +128,7 @@ public class AppConnectServerImpl extends BaseMessageServiceImpl
                 }
             }
             //缓存新连接
-            RedisManager.putChannel(user.getUserid(), ctx.channel());
-            RedisManager.putUserInfo(ctx, user);
+            RedisManager.app2NSLogin(ctx, user);
             PushMessageImpl.getInstance().pushImMessages(ctx.channel(), user);
             checkUserStatus(ctx);
         }
@@ -249,7 +260,7 @@ public class AppConnectServerImpl extends BaseMessageServiceImpl
         NettyMessage offlineMsg;
         try
         {
-            offlineMsg = buildMessage(AppServerType.EX_TYPE,
+            offlineMsg = buildMessage(AppServerType.EX,
                     ServerException.OFF_LINE.toInfo());
             sendMessage(offlineMsg, ctx.channel());
         }

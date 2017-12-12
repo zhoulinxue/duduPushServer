@@ -7,6 +7,7 @@ import com.czl.chatClient.AppServerType;
 import com.czl.chatClient.bean.DuduPosition;
 import com.czl.chatClient.bean.DuduUser;
 import com.czl.chatClient.bean.Groupbean;
+import com.czl.chatClient.bean.NettyContent;
 import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatClient.bean.Pushmessage;
 import com.czl.chatClient.bean.Responbean;
@@ -47,7 +48,7 @@ public abstract class DefaultHanlder implements DefaultLisenter {
 				 Log.e("Dudu_SDK","DefaultHanlder_______onReceiveIMMsg__");
 				onReceiveIMMsg(pmsg);
 				break;
-			case EX_TYPE:
+			case EX:
 				if ("100".equals(splits[0])) {
 					offLinNotice(splits[1]);
 				} else {
@@ -84,8 +85,9 @@ public abstract class DefaultHanlder implements DefaultLisenter {
 					onGroupMessageChanged(groupbean);
 					break;
 				case FM:
-					DuduUser fromUser= (DuduUser) parser.parseObject(splits[splits.length-2],DuduUser.class);
-					String fmMsg=splits[splits.length-1];
+					NettyContent content=message.getConobj();
+					DuduUser fromUser= content.getFrom();
+					String fmMsg=content.getContent();
 					 Log.e("Dudu_SDK","onReceiveFMMessage______FM__");
 					onReceiveFMMessage(fromUser,fmMsg);
 					break;

@@ -32,7 +32,14 @@ public class NettyServer {
 		// TODO Auto-generated method stub
 		NettyServer server = new NettyServer();
 		server.setIp(Constants.MS_IP);
-		server.setPort(8082);
+		server.setPort(10001);
 		return server;
 	}
+
+    @Override
+    public String toString()
+    {
+        return "NettyServer [ip=" + ip + ", port=" + port + "]";
+    }
+	
 }

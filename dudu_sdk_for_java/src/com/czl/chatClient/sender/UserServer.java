@@ -125,13 +125,14 @@ public interface UserServer {
 	/**
 	 * 
 	 * @param channel
-	 * @param myUser
-	 * @param remoteUser
-	 * @param parser
 	 * @param lisenter
 	 * @throws UnsupportedEncodingException
 	 */
 	public void sendAudoiByte(AppServerType type,Channel channel, byte[] bytes, SendMessageLisenter lisenter) throws UnsupportedEncodingException;
+
+	public void sendAudoiByte(List<DuduUser> users,AppServerType type,Channel channel, byte[] bytes, String str,SendMessageLisenter lisenter) throws UnsupportedEncodingException;
+
+
 
 	/**
 	 * 自定义消息
@@ -142,8 +143,8 @@ public interface UserServer {
 	 * @param lisenter
 	 * @throws UnsupportedEncodingException
 	 */
-	public void sendFreedomMessage(Channel channel, String jsonObject, DuduUser touser, JsonParser parser,
-			SendMessageLisenter lisenter) throws UnsupportedEncodingException;
+	public void sendFreedomMessage(Channel channel, String jsonObject,List<DuduUser> touser, JsonParser parser,
+			SendMessageLisenter lisenter,boolean saveToCache) throws UnsupportedEncodingException;
 
 	/**
 	 * 发语音结束

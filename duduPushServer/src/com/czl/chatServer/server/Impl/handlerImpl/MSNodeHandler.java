@@ -33,9 +33,9 @@ public class MSNodeHandler extends BaseMessageServiceImpl
         {
             case LC:
                 String[] lcnodeport = data[1].split(":");
-                ctx.channel().attr(Constants.NS_USER_NAME).set(data[1]);
+                ctx.channel().attr(Constants.NS_USER_NAME).set(lcnodeport[0]+Constants.IP_PORT_SEPORATE+ lcnodeport[1]);
                 RedisManager.nsNodePortRegister(lcnodeport[0], lcnodeport[2]);
-                RedisManager.addNs(data[1]);
+                RedisManager.addNs(lcnodeport[0]+Constants.IP_PORT_SEPORATE+ lcnodeport[1]);
                 System.out.println("ns注册成功！" + data[1]);
                 break;
             case LQ:
@@ -82,8 +82,7 @@ public class MSNodeHandler extends BaseMessageServiceImpl
             RedisManager.nodeportExit(ipAndPort[0]);
             // NS服务器掉线 重置 该服务器人数
             RedisManager.nsShutDown(nsName);
-            moveChattingGroup(nsName);
-            
+            moveChattingGroup(nsName);           
         }
     }
     
@@ -93,10 +92,11 @@ public class MSNodeHandler extends BaseMessageServiceImpl
         List<String> list = RedisManager.getChattingGroups(nsName);
         if (list != null && list.size() != 0)
         {
-            String newipAndPort = RedisManager.getRandom();
+           
             
             for (String groupId : list)
             {
+                String newipAndPort = RedisManager.getRandom();
                 if (!StringUtils.isEmpty(newipAndPort))
                 {
                     RedisManager.putGroupIp(groupId, newipAndPort);

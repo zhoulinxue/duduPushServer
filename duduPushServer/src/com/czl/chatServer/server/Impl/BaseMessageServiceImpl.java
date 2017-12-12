@@ -10,10 +10,8 @@ import com.czl.chatClient.bean.DuduUser;
 import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatClient.utils.StringUtils;
 import com.czl.chatServer.Constants;
-import com.czl.chatServer.netty.NSClient;
 import com.czl.chatServer.netty.decoder.NsClientMessageDecoder;
 import com.czl.chatServer.netty.encode.NettyMessageServerEncoder;
-import com.czl.chatServer.netty.handler.NsClientHandler;
 import com.czl.chatServer.netty.handler.ShortClientHandler;
 import com.czl.chatServer.server.BaseMessageServer;
 import com.czl.chatServer.utils.RedisManager;
@@ -171,7 +169,7 @@ public class BaseMessageServiceImpl implements BaseMessageServer
             throws UnsupportedEncodingException
     {
         // TODO Auto-generated method stub
-        NettyMessage arg0 = buildMessage(AppServerType.EX_TYPE);
+        NettyMessage arg0 = buildMessage(AppServerType.EX);
         arg0.setContent(getContentByte(content));
         return arg0;
     }

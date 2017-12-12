@@ -1,5 +1,6 @@
 package com.czl.chatClient.receiver;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import com.czl.chatClient.AppServerType;
@@ -16,5 +17,5 @@ public interface RecivMessageCallBack {
 
 	public List<AppServerType> getServerType();
 
-	public void onRecivMessage(Channel ctx, NettyMessage message, String tag, JsonParser parser);
+	public void onRecivMessage(Channel ctx, NettyMessage message, String tag, JsonParser parser)throws UnsupportedEncodingException;
 }

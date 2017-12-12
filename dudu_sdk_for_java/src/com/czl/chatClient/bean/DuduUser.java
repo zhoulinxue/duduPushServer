@@ -1,5 +1,6 @@
 package com.czl.chatClient.bean;
 
+import com.czl.chatClient.utils.StringUtils;
 
 public class DuduUser {
 	private String userid;
@@ -11,6 +12,7 @@ public class DuduUser {
 	private String ip;
 	private int port;
 	private String loginTime;
+    private String logourl;
 	
 
 	public DuduUser()
@@ -34,11 +36,13 @@ public class DuduUser {
 	}
 
 	public String getUrl() {
+	    this.logourl=url;
 		return url;
 	}
 
 	public void setUrl(String url) {
 		this.url = url;
+		this.logourl=url;
 	}
 
 	public String getUserid() {
@@ -117,6 +121,20 @@ public class DuduUser {
     public void setLoginTime(String loginTime)
     {
         this.loginTime = loginTime;
+    }
+
+    public String getLogourl()
+    {
+        if(StringUtils.isEmpty(logourl)){
+            return getUrl();
+        }
+        return logourl;
+    }
+
+    public void setLogourl(String logourl)
+    {
+        this.logourl = logourl;
+        this.url=logourl;
     }
 	
 }

@@ -188,4 +188,26 @@ public class Pushmessage implements java.io.Serializable {
 	public void setVoicestream(String voicestream) {
 		this.voicestream = voicestream;
 	}
+
+	@Override
+	public String toString() {
+		return "Pushmessage{" +
+				"alert='" + alert + '\'' +
+				", channelid='" + channelid + '\'' +
+				", dataid='" + dataid + '\'' +
+				", detail='" + detail + '\'' +
+				", fromid='" + fromid + '\'' +
+				", fromlogourl='" + fromlogourl + '\'' +
+				", fromname='" + fromname + '\'' +
+				", sendtime='" + sendtime + '\'' +
+				", toid='" + toid + '\'' +
+				", type='" + type + '\'' +
+				", title='" + title + '\'' +
+				", status=" + status +
+				", isNewMsg=" + isNewMsg +
+				", uid='" + uid + '\'' +
+				", picUrl='" + picUrl + '\'' +
+				", voicestream='" + voicestream + '\'' +
+				'}';
+	}
 }
