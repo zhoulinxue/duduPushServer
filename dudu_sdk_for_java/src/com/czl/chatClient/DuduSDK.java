@@ -419,8 +419,9 @@ public final class DuduSDK extends BaseMessageServiceImpl
         }
         try
         {
-            JsonString stringcontent = DuduSDK.getInstance().getParser().ObjectToJsonString(user);
-            stringcontent.getBuilder().append(Constants.SEPORATE).append(user.getDiviceid());
+            JsonString stringcontent =new JsonString();
+            stringcontent.append(parser.toJSONString(user));
+            stringcontent.append(Constants.SEPORATE).append(user.getDiviceid());
             userServer.registerUser(stringcontent, mChannel, null);
         }
         catch (UnsupportedEncodingException e1)
@@ -531,11 +532,10 @@ public final class DuduSDK extends BaseMessageServiceImpl
         private boolean messageFilter(NettyMessage message)
         {
             // TODO Auto-generated method stub
-            String data;
             try
             {
-                data = new String(message.getContent(), "UTF-8");
-                String[] splits = data.split("\\|");
+
+                String[] splits = message.getFormatStrings();;
                 if ((message.getHeader().equals("FA")||message.getHeader().equals("GB"))&&splits.length==4)
                 {
                     isReconnect = false;
@@ -572,11 +572,6 @@ public final class DuduSDK extends BaseMessageServiceImpl
                     Log.e("Dudu_SDK", "  NS:" + (server == null));
                     if (server != null)
                     {
-                        // String ip="192.168.13.32";
-                        // int port=1668;
-                        // String ip="192.168.13.31";
-                        // int port=16688;
-                        // connect(ip, port);
                         connect(server.getIp(), server.getPort());
                     }
                     return false;
@@ -619,8 +614,7 @@ public final class DuduSDK extends BaseMessageServiceImpl
     {
         try
         {
-            String data = new String(message.getContent());
-            String[] splits = data.split("\\|");
+            String[] splits = message.getFormatStrings();;
             for(String str:splits){
                 Log.e(str+"!!");
             }
@@ -756,8 +750,7 @@ public final class DuduSDK extends BaseMessageServiceImpl
     private void onLoginSuccess() {
         if (currentMsg != null) {
             String header = currentMsg.getHeader();
-            String content = currentMsg.getCtxUTF8String();
-            String[] obg = content.split("\\|");
+            String[] obg = currentMsg.getFormatStrings();
             try {
             if (AppServerType.GB.toString().equals(header) && obg.length == 4) {
 

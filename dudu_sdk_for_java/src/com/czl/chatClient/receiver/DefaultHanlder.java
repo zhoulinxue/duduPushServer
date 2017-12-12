@@ -29,8 +29,7 @@ public abstract class DefaultHanlder implements DefaultLisenter {
 			String tag, JsonParser parser) {
 		// TODO Auto-generated method stub
 		try {
-			String data = new String(message.getContent(), "UTF-8");
-			String[] splits = data.split("\\|");
+			String[] splits = message.getFormatStrings();;
 			switch (AppServerType.ofCommand(message.getHeader())) {
 			case RETURN_TAG:
 				 Log.e("Dudu_SDK","DefaultHanlder_______onReceivi00Msg__"
@@ -52,7 +51,7 @@ public abstract class DefaultHanlder implements DefaultLisenter {
 				if ("100".equals(splits[0])) {
 					offLinNotice(splits[1]);
 				} else {
-					onException(data);
+					onException(message.getCtxUTF8String());
 				}
 				break;
 			case PT:

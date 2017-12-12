@@ -118,7 +118,7 @@ public class BaseMessageServiceImpl implements BaseMessageServer {
 		if (StringUtils.isEmpty(content.getContent())) {
 			throw new IllegalArgumentException("JSON String  can not be null..");
 		}
-		return StringUtils.tobyte(content.getBuilder().toString());
+		return StringUtils.tobyte(content.getMessage().toString());
 	}
 
 	@Override

@@ -22,16 +22,15 @@ public abstract class GroupHandler implements GroupLienster {
 	public final List<AppServerType> getServerType() {
 		// TODO Auto-generated method stub
 		return AppServerType.GroupValus();
+
 	}
 
 	@Override
 	public final void onRecivMessage(Channel ctx, NettyMessage message,
 			String tag, JsonParser parser) {
 		// TODO Auto-generated method stub
-		// TODO Auto-generated method stub
 		try {
-			String data = new String(message.getContent(), "UTF-8");
-			String[] splits = data.split("\\|");
+			String[] splits = message.getFormatStrings();;
 			switch (AppServerType.ofCommand(message.getHeader())) {
 			case GT:
 				DuduUser etuser = (DuduUser) parser.parseObject(splits[0],

@@ -61,8 +61,7 @@ public abstract class ZVAHandler implements ZVALisenter{
                 String data;
                 try
                 {
-                    data = new String(message.getContent(), "UTF-8");
-                    String[] splits = data.split("\\|");
+                    String[] splits = message.getFormatStrings();;
                     Responbean responbean = (Responbean) parser
                             .parseObject(splits[0], Responbean.class);
                     onReceiveRespons(responbean);
@@ -75,23 +74,18 @@ public abstract class ZVAHandler implements ZVALisenter{
 
                 break;
             case RETURN_TAG:
-                String datar;
-                    datar = new String(message.getContent(), "UTF-8");
-                    String[] splits = datar.split("\\|");
+                    String[] splits =message.getFormatStrings();
                     onServerRecive(splits[0]);
-
                 break;
             case PU:
-                String pudata = new String(message.getContent(), Constants.CONTENT_CHAR_SET);
-                String[] pusplits = pudata.split("\\|");
+                String[] pusplits = message.getFormatStrings();;
                 List<Pushmessage> lists = JSONObject.parseArray(pusplits[0], Pushmessage.class);
                 Log.e("Dudu_SDK","DefaultHanlder_______onReceiveOfflineMessage__");
                 onReceiveOfflineMessage(lists);
                 break;
 
             case IM:
-                String imdata = new String(message.getContent(), Constants.CONTENT_CHAR_SET);
-                String[] imsplits = imdata.split("\\|");
+                String[] imsplits = message.getFormatStrings();;
                 Pushmessage Impmsg = (Pushmessage) parser.parseObject(imsplits[2],
                         Pushmessage.class);
                 Log.e("Dudu_SDK","DefaultHanlder_______onReceiveIMMsg__");

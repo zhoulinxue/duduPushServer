@@ -40,8 +40,7 @@ public class UserServerImpl extends BaseMessageServiceImpl implements UserServer
             JsonParser parser) throws Exception
     {
         // TODO Auto-generated method stub
-        String data = new String(message.getContent(), "UTF-8");
-        String[] splits = data.split("\\|");
+        String[] splits = message.getFormatStrings();
         switch (AppServerType.ofCommand(message.getHeader()))
         {
             case PU:

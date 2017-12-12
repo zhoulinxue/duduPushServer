@@ -26,8 +26,7 @@ public abstract class P2PHandler implements P2PLienster {
 			String tag, JsonParser parser) {
 		// TODO Auto-generated method stub
 		try {
-			String data = new String(message.getContent(), "UTF-8");
-			String[] splits = data.split("\\|");
+			String[] splits = message.getFormatStrings();;
 			switch (AppServerType.ofCommand(message.getHeader())) {
 			case FN:
 				DuduUser user = (DuduUser) parser.parseObject(splits[0],

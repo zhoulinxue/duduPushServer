@@ -1,5 +1,4 @@
 package com.czl.chatClient.bean;
-
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 
@@ -11,7 +10,7 @@ import com.czl.chatClient.utils.StringUtils;
 
 public final class NettyMessage implements Serializable {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 	private byte header0;
@@ -87,8 +86,10 @@ public final class NettyMessage implements Serializable {
 	}
 
 	public String getCtxUTF8String() {
+
 		try {
-			return new String(content, "UTF-8");
+			String contentStr= new String(getContent(), Constants.CONTENT_CHAR_SET);
+			return contentStr ;
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -164,25 +165,25 @@ public final class NettyMessage implements Serializable {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public String[] getUserDataFromMsg()
-    {
-        // TODO Auto-generated method stub
-	    if(data!=null){
-	        return data;
-	    }
-        try
-        {
-            data=(new String(getContent(), Constants.CONTENT_CHAR_SET))
-                    .split("\\|");
-        }
-        catch (UnsupportedEncodingException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return data;
-    }
+	{
+		// TODO Auto-generated method stub
+		if(data!=null){
+			return data;
+		}
+		try
+		{
+			data=(new String(getContent(), Constants.CONTENT_CHAR_SET))
+					.split("\\|");
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return data;
+	}
 	public NettyContent getConobj()
 	{
 		if (conobj == null)
@@ -232,5 +233,25 @@ public final class NettyMessage implements Serializable {
 		{
 			e.printStackTrace();
 		}
+	}
+
+	public String[] getFormatStrings() {
+		String[] data=getCtxUTF8String().split("\\|");
+		String[] newdata=new String[data.length];
+		for(int i=0;i<data.length;i++){
+			newdata[i]=getPartFormat(data[i]);
+		}
+		return newdata;
+	}
+
+	public String getFormatString() {
+		String formate=StringUtils.getFormatString(getCtxUTF8String(),Constants.REPLACE_SEPORATE_TAG,Constants.SEPORATE);
+		return StringUtils.getFormatString(formate,Constants.REPLACE_END_TAG,Constants.MESSAFE_END_TAG);
+	}
+
+	private String getPartFormat(String datum) {
+		String formateString=StringUtils.getFormatString(datum,Constants.REPLACE_END_TAG,Constants.MESSAFE_END_TAG);
+
+		return StringUtils.getFormatString(formateString,Constants.REPLACE_SEPORATE_TAG, Constants.SEPORATE);
 	}
 }

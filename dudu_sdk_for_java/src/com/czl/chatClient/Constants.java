@@ -4,9 +4,9 @@ import io.netty.util.AttributeKey;
 
 /**
  * 常量类
- * 
+ *
  * @author zhouxue
- * 
+ *
  */
 public class Constants {
 	public static final String IM_CHANELL_TYPE = "channelcall";
@@ -43,5 +43,7 @@ public class Constants {
 	public static String CHATTING_CHANNEL = "chatting_channel";
 	public static String THIS_NS_ONLIN = "on_line_in";
 	public static String MS_IP = "120.76.193.203";
+	public static String REPLACE_END_TAG="{@}";
+	public static String REPLACE_SEPORATE_TAG="{$}";
 	// public static String MS_IP= "192.168.13.31";
 }
