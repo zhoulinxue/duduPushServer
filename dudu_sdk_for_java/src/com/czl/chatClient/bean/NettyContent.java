@@ -1,5 +1,7 @@
 package com.czl.chatClient.bean;
 
+import com.czl.chatClient.utils.StringUtils;
+
 import java.util.List;
 
 public class NettyContent
@@ -30,11 +32,12 @@ public class NettyContent
     }
 
     public String getContent() {
-        return content;
+        return StringUtils.returnFormat(content);
     }
 
     public void setContent(String content) {
-        this.content = content;
+
+        this.content = StringUtils.formatString(content);
     }
 
     public long getMsgTime()

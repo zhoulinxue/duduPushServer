@@ -39,7 +39,7 @@ public abstract class ZVAHandler implements ZVALisenter{
                 NettyContent content;
                 try
                 {
-                    content = (NettyContent) parser.parseObject(message.getCtxUTF8String(), NettyContent.class);
+                    content = (NettyContent) parser.parseObject(message.getFormatString(), NettyContent.class);
                     DuduUser fromUser = content.getFrom();
                     String fmMsg = content.getContent();
                     Log.e("Dudu_SDK", "onReceiveFMMessage______FM__");
@@ -58,7 +58,6 @@ public abstract class ZVAHandler implements ZVALisenter{
                 onReciveAudioMessage(from, bytes, discritionMsg);
                 break;
             case RS:
-                String data;
                 try
                 {
                     String[] splits = message.getFormatStrings();;

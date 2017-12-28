@@ -11,7 +11,11 @@ import io.netty.util.AttributeKey;
 public class Constants {
 	public static final String IM_CHANELL_TYPE = "channelcall";
 	public static final String IM_FRIEND_TYPE = "friendcall";
-	public static String USER_HEAD = "user";
+
+
+    public static final int SEND_TIMES = 1;
+	public static int RAW_PACKAGE_SIZE = 320*SEND_TIMES;
+    public static String USER_HEAD = "user";
 	public static AttributeKey<String> KEY_USER_ID = AttributeKey.valueOf(USER_HEAD);
 	public static String CONTENT_CHAR_SET = "utf-8";
 	public static String POSITION_KEY = "position.";
@@ -45,5 +49,6 @@ public class Constants {
 	public static String MS_IP = "120.76.193.203";
 	public static String REPLACE_END_TAG="{@}";
 	public static String REPLACE_SEPORATE_TAG="{$}";
-	// public static String MS_IP= "192.168.13.31";
+    public static int SAMPLERATEINHZ=16000;
+    // public static String MS_IP= "192.168.13.31";
 }

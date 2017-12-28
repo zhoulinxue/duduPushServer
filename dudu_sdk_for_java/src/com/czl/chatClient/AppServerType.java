@@ -120,7 +120,8 @@ public enum AppServerType
     // 退出登陆
     OU("OU"),
     // 语音消息
-    AU("AU"), OK("OK"),
+    AU("AU"),
+    OK("OK"),
     // NS 登录MS
     LC("LC"),
     //退出登录

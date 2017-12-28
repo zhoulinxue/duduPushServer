@@ -38,14 +38,11 @@ public final class NettyMessageEncoder extends MessageToByteEncoder<NettyMessage
 			sendBuf.writeInt(msg.getCtxLength());
 			sendBuf.writeBytes(msg.getContent());
 			byte[] cobtye=msg.getbyteConobj();
-			sendBuf.writeInt(cobtye.length);
 			sendBuf.writeBytes(cobtye);
 		}else {
 			sendBuf.writeByte(124);
 			sendBuf.writeBytes(msg.getContent());
-			sendBuf.writeByte(10);
 		}
 		Log.printeNettymsg(msg, "发送的消息");
-		// ctx.writeAndFlush(sendBuf);
 	}
 }

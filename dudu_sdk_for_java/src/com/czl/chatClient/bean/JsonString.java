@@ -26,8 +26,7 @@ public class JsonString {
 
 	public JsonString append(String sting){
 		if(!StringUtils.isEmpty(sting)&&!Constants.SEPORATE.equals(sting)){
-			String formatString=StringUtils.getFormatString(sting, Constants.SEPORATE,Constants.REPLACE_SEPORATE_TAG);
-			builder.append(StringUtils.getFormatString(formatString,Constants.MESSAFE_END_TAG,Constants.REPLACE_END_TAG));
+			builder.append(StringUtils.formatString(sting));
 		}else if(Constants.SEPORATE.equals(sting)){
 			builder.append(sting);
 		}
@@ -36,5 +35,8 @@ public class JsonString {
 
 	public String getMessage() {
 		return builder.toString();
+	}
+	public String getFinalMessage() {
+		return builder.append(Constants.MESSAFE_END_TAG).toString();
 	}
 }

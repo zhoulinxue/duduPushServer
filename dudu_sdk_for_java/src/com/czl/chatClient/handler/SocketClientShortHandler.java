@@ -2,6 +2,8 @@ package com.czl.chatClient.handler;
 
 import java.io.UnsupportedEncodingException;
 
+import com.czl.chatClient.Constants;
+import com.czl.chatClient.bean.JsonString;
 import com.czl.chatClient.bean.NettyMessage;
 import com.czl.chatClient.login.onConnetCallBack;
 import com.czl.chatClient.receiver.RecivMessageCallBack;
@@ -65,12 +67,13 @@ public class SocketClientShortHandler extends ChannelInboundHandlerAdapter {
 
 		message.setHeader0((byte) 65);// A
 		message.setHeader1((byte) 67);// C
+		JsonString string=new JsonString(content);
 		try {
-			message.setContent((content).getBytes("UTF-8"));
+			message.setContent(string.getFinalMessage().getBytes(Constants.CONTENT_CHAR_SET));
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
 		return message;
 	}
 	// 设置心跳时间 结束
